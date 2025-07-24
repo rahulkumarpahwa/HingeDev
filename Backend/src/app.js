@@ -50,11 +50,19 @@ app.delete("/user", async (req, res) => {
 });
 
 app.patch("/user", async (req, res) => {
+  // here we are patching the firstname (updating the firstname)
   // const userId = req.body.userId;
   // const firstName = req.body.firstName;
-  const {userId, firstName} = req.body;
+  const { userId, firstName } = req.body;
   try {
-    const updatedUser = await User.findByIdAndUpdate(userId, {firstName : firstName}, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId, // Id to identify the user.
+      { firstName: firstName }, // data to be updated
+      { new: true, runValidators: true } // options objects :  1. new will returned the new user. 2.this will check the custom validations for the updated user acording to the schema.
+    );
+    // the custom validations we have added in our schema will work only for the new User object created and not for the existing object and to make that work we will have use the [options] under the Model.findByIdAndUpdate() method.
+    // for that we will pass a custom options in method as '{runValidators : true}' after the userId, data to be updated and then the options.
+
     console.log("User Updated successfully!");
     // res.json({changed : [{ updatedUser }]});
     res.json({ updatedUser });
@@ -63,3 +71,7 @@ app.patch("/user", async (req, res) => {
   }
 });
 
+// 1. validations : until now we are adding the garbage in the database but here we will make strict checks on the data entered by user so that only valid data is to be added in the database.
+// 2. there are multiple ways to do that.
+// 3. we are not worried about the get api but we are majorly worried about the post api ans patch api which are inserting data in the database. so we need to put checks here.
+// 4. but before that we will put the checks on the schema itself.
