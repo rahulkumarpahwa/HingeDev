@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -22,6 +23,12 @@ const userSchema = new mongoose.Schema(
       unique: true, // makes the email unique and can't add the duplicate email.
       lowercase: true, // when stored converted to the lowercase, from any case entered by the user.
       trim: true, //this will remove the extra front and back spaces.
+      validate(value) {
+        // validating email using the validator package.
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email Address " + value);
+        }
+      },
     },
     gender: {
       type: String,
@@ -47,6 +54,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://static.vecteezy.com/system/resources/previews/026/434/417/non_2x/default-avatar-profile-icon-of-social-media-user-photo-vector.jpg", // default value of the photoUrl.
+    }, 
+    validate(value) {
+      // validating the photoUrl
+      if (!validator.isURL(value)) {
+        throw new Error("Invalid Photo Url" + value);
+      }
     },
   },
   { timestamps: true } // adding the timestamps
@@ -80,3 +93,28 @@ module.exports = { User };
 
 // adding the timestamps: to the tell the time at which user has been added to the database, at timestamp is needed which can be easily created by using the {timestamps : true} as the second argument in the new Schema({<user schema>}, {timestamps : true}) while creating a new schema. (see above) we have to set it to the true and it will add the createdAt and updatedAt in the timestamps.
 // we can use these to check who has joined the platform in the last seven days or whom has updated their profile in the last seven days.
+
+// the email validations : suppose some user passed the email as simple string without the @ and gmail.com or anyother mail server. then it will create problem at our end. so validating email is such a big problem as we have check everything @, a mailserver and .com or some other is present in the email string. so to do that we will use external library. 'npm validator'
+
+// It is simple to use as :
+// const validator = require("validator");
+// validator.isEmail(data.email); // returns true or false.
+
+// here we applied the validator at the email as :
+// validate(value) {
+//         // validating email using the validator package.
+//         if (!validator.isEmail(value)) {
+//           throw new Error("Invalid email Address " + value);
+//         }
+//       },
+// ie. using the validate function in which we call the validator.isEmail() to check for the email.
+
+// similar validation can be applied over the photoUrl. using validator.isURL() as :
+//  validate(value) {
+//       if (!validator.isURL(value)) {
+//         throw new Error("Invalid Photo Url" + value);
+//       }
+//     },
+
+
+// similar validation can be applied on the password using the validator.isStrongPassword(value);
