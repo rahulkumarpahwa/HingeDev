@@ -73,8 +73,35 @@ app.post("/signup", async (req, res) => {
 // we will store only the firstName, lastName, email and passwordHashed in DB.
 // the new user stored password will be encrypted.
 
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // validating the email:
+    if (!validator.isEmail(email)) {
+      throw new Error("Enter a valid credentials!");
+    }
+    // checking if userExist or not.
+    const findUser = await User.findOne({ email: email });
+    if (!findUser) {
+      throw new Error("Invalid Credentials!");
+    }
+    // checking password.
+    const isValidPassword = await bcrypt.compare(password, findUser.password);
+    if (isValidPassword) {
+      res.send("Login Successfully!");
+    } else {
+      throw new Error("Invalid Credentials!");
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
 
-
+// compare the hashed password with the incoming password:
+// 1. for that first create the /login route and then we will takeout the email and password from the req.body.
+// 2. then check if the email entered is valid or not using the validator.isEmail()
+// 3. then find the user exist or not before checking the password using the User.findOne({email : email}) and if not then throw error.
+// 4. then compare the passwordHashed and password in the DB and entered by the user. if not valid then throw Error otherwise send the response back to the user that credentails invalid.
 
 app.get("/feed", async (req, res) => {
   try {
