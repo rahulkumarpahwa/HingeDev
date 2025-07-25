@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const bcrypt = require("bcrypt");
 const { connectDB } = require("./config/database.js");
 const { User } = require("./models/userSchema.js");
 const { validateSignUpData } = require("./utils/validation.js");
@@ -19,9 +20,17 @@ app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
-    console.log(req.body);
     validateSignUpData(req); // validating the data before saving.
-    const newUser = new User(req.body);
+    const { firstName, lastName, email, password } = req.body;
+    // encrypting the data
+    const passwordHash = await bcrypt.hash(password, 10); // password and 10 salt rounds.
+    // returns a promise so use a await to handle that.
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+    });
     await newUser.save();
     res.send("data added successfully!");
   } catch (error) {
@@ -51,6 +60,21 @@ app.post("/signup", async (req, res) => {
 // iii. check the password using the validator.isStrongPassword(value) from the validator package else throw error.
 // export the function using module.exports and then import in the app.js
 // 6. put the method inside the signup route and then pass the req in the function validateSignUpData(req). make sure to have the try-catch block to catch the error occur.
+
+// encrypting the password:
+// 1. we will use the package bcrypt for that hashing and then validating the password entered by the user.
+//2. steps :
+// A. const bcrypt = require("bcrypt");
+// const {password } = req.body;
+// B. const passwordHash = await bcrypt.hash(<password>, <no. of salt rounds>); // it returns a promise.
+// the more the salting rounds, more it is tough to break the password.
+// basic no. of salting rounds is 10. more rounds also means more time to hash the password.
+// C. so we will store the passwordHashed in the database/ while creating a new User.
+// we will store only the firstName, lastName, email and passwordHashed in DB.
+// the new user stored password will be encrypted.
+
+
+
 
 app.get("/feed", async (req, res) => {
   try {
