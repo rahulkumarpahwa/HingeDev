@@ -6,7 +6,7 @@ const validateSignUpData = (req) => {
     throw new Error("First Name or Last Name must exist!");
   } else if (!validator.isEmail(email)) {
     throw new Error("Email must be valid!");
-  } else if (!validateSignUpData.isStrongPassword(password)) {
+  } else if (!validator.isStrongPassword(password)) {
     throw new Error("Password must be Strong!");
   }
 };

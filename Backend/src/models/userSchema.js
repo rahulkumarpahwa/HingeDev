@@ -54,12 +54,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://static.vecteezy.com/system/resources/previews/026/434/417/non_2x/default-avatar-profile-icon-of-social-media-user-photo-vector.jpg", // default value of the photoUrl.
-    }, 
-    validate(value) {
-      // validating the photoUrl
-      if (!validator.isURL(value)) {
-        throw new Error("Invalid Photo Url" + value);
-      }
+      validate(value) {
+        // validating the photoUrl
+        if (!validator.isURL(value)) {
+          throw new Error("Invalid Photo Url" + value);
+        }
+      },
     },
   },
   { timestamps: true } // adding the timestamps
@@ -115,6 +115,5 @@ module.exports = { User };
 //         throw new Error("Invalid Photo Url" + value);
 //       }
 //     },
-
 
 // similar validation can be applied on the password using the validator.isStrongPassword(value);
