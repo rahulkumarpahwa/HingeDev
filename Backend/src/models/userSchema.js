@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const secret = "jhfsdfhshfsfhhfjahfkasfhk"; // any random secret for the jwt. can put as env as well.
+
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -65,6 +69,22 @@ const userSchema = new mongoose.Schema(
   { timestamps: true } // adding the timestamps
 );
 
+// don't use the arrow methods.
+userSchema.methods.getJWT = async function () {
+  const user = this; // as the every instace (newUser) is instace of User model so 'this' refers to that instance.
+  const token = await jwt.sign({ _id: user._id }, secret, {
+    expiresIn: 60 * 60 * 2,
+  });
+  return token;
+};
+
+// don't use the arrow methods.
+userSchema.methods.getPasswordValid = async function (passwordbyuser) {
+  const user = this; // as the every instace (newUser) is instace of User model so 'this' refers to that instance.
+  const isValidPassword = await bcrypt.compare(passwordbyuser, user.password); // second parameter is hashed password of the user
+  return isValidPassword;
+};
+
 const User = mongoose.model("User", userSchema);
 module.exports = { User };
 
@@ -117,3 +137,22 @@ module.exports = { User };
 //     },
 
 // similar validation can be applied on the password using the validator.isStrongPassword(value);
+
+// USER SCHEMAS METHODS:
+// we can attach methods with the schema which is applicable for all the users. these are helper methods which are closely related to users.
+// for example : while /login we will generate the jwt token from the user_id and we can offload the jwt.sign method from it to the user schema methods as :
+// note : don't use the arraow function here.
+
+// write with userSchema.methods.<function-name>
+
+// userSchema.methods.getJWT = async function () {
+//   const user = this;
+// const token = await jwt.sign({ _id: user._id }, secret, {
+//     expiresIn: 60 * 60 * 2,
+//   });
+//   return token;
+// };
+
+// when we create a new user then newUser created is the instance of this USER model. so 'this' here refers to that instance (newUser) of the model.
+
+// similarly we can offload the compare method of bcrypt method in user schema as well as :

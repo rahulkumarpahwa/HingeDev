@@ -7,6 +7,7 @@ const validator = require("validator");
 const { connectDB } = require("./config/database.js");
 const { User } = require("./models/userSchema.js");
 const { validateSignUpData } = require("./utils/validation.js");
+const { userAuth } = require("./middlewares/auth.js"); // require the user auth.
 const secret = "jhfsdfhshfsfhhfjahfkasfhk"; // any random secret for the jwt. can put as env as well.
 const port = 8000;
 connectDB()
@@ -56,7 +57,11 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid Credentials!");
     }
     // checking password.
-    const isValidPassword = await bcrypt.compare(password, findUser.password);
+
+    //  const isValidPassword = await bcrypt.compare(password, user.password); 
+    // method offloaded to userSchema methods.
+
+    const isValidPassword = await findUser.getPasswordValid(password); // from userSchema methods.
     if (isValidPassword) {
       // we will do the cookie work here.
       // 1. creating the JWT token.
@@ -71,14 +76,20 @@ app.post("/login", async (req, res) => {
       // we will create the token and send it in the form of cookie, which we will verify in the every route we take.
       // to create we will call the method .sign() over jwt and we will hide the data in it, which we will use the userid as _id (taken from the usee loggedIn) and pass a secret key over here as well (which only I /server know.)
 
-      const token = await jwt.sign({ _id: findUser._id }, secret, {
-        expiresIn: 60 * 60 * 2,
-      }); // expires in two hours
+      // we offloaded this method to userSchenma methods.
+      // const token = await jwt.sign({ _id: findUser._id }, secret, {
+      //   expiresIn: 60 * 60 * 2,
+      // }); // expires in two hours
+      // // 1h = 1 hour, 1d = 1 day.
+      // // or read the documentation.
 
-      console.log(token);
+      const token = await findUser.getJWT(); // calling the userSchema methods on the user instance we find.
+
+      // console.log(token);
       // console.log(typeof token);
       // now we will send the token (string type) back to the user as the cookie.
-      res.cookie("token", token);
+      res.cookie("token", token, { expires: new Date(Date.now() + 3600000) }); // 1 hour expiry.
+      // we can also expire the cookies as well.
 
       res.send("Login Successfully!");
     } else {
@@ -91,67 +102,21 @@ app.post("/login", async (req, res) => {
   // summary : we will check the userId and password. then generate the jwt token using the sign() method and pass the userId (hiding)in it. then we will create the cookie with the token and then send the response back to the client.
 });
 
-// to get back the cookie we will create the another route say GET /profile route as :
-app.get("/profile", async (req, res) => {
+// now we will put the userAuth here as the middleware.
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    // to get the cookies we will use the req.cookies as :
-    const cookies = req.cookies; // cookies will give all the cookies.
-    // console.log(cookies); // we will get the undefined.
-    // this is because we need to parse the data coming out of the req.cookies as recommended by the express. so we have another package cookie-parser. so we will install it and it act as a middleware.
-    // so we will add the cookie-parser in the app.use(cookieParser()); (see below the json parser).
-    // now we can read the cookie.
-
-    // we will now take out the token out of the req.cookies and verify it. otherwise when failed to loggedIn we will ask the user to login again as token has been expired.
-
-    const { token } = req.cookies; // cookies is giving all the cookies. ie. why we are destructuring the cookies object to take out the token.
-    // we will extract the token and then we will validate the token.
-
-    // we will also check for the error like : token not exist. then :
-    if (!token) {
-      throw new Error("Invalid Token!");
-    }
-
-    // now we will create a JWT token using the JWT.io
-    // the token consists of three parts: 1. header (red) 2. payload (pink) 3. signature (blue) to verify.
-
-    // install jsonwebtoken from npm and then it has same methods to sign and verify the token like the bcrypt's hash and compare.
-
-    // when we creating a token, then we can hide some data inside it. (this part is done under the /login route)
-
-    // here we will get the cookie which has the jwt token and before sending the profile data of the user we will verify the token using the jwt.verify() method.
-
-    const decodedToken = await jwt.verify(token, secret);
-    const { _id } = decodedToken;
-    // console.log(decodedToken);
-    // we will get like
-    // { _id: '68b53b34a27690de0f00f760', iat: 1756713109, exp: 1756720309 }
-    // now we will find the user from the _id we got and then send the details of the user loggedIn.
-
-    const findUser = await User.findOne({ _id: _id });
-    // we will check for the user errors as well, when we get the token, user does not exist.
-    if (!findUser) {
-      throw new Error("User does not Exists!");
-    }
-    // we can also return the user to login again!
-
-    res.send(findUser);
+    res.send(req.user); // sending back the user details after verifying with the userAuth.
   } catch (error) {
     console.log(error);
     res.status(400).send(error.message);
   }
 });
 
-// summary :
-// whenever we hit the login api, the server will send the client a cookie (having a Token) and browser will read the cookie and store it safely.
-// when we send the request to another api from the client to the server, it's browser duty to send the cookie back to the server for verification.
-// But if the client delete the cookie we will not get the token from the cookie.
-// we will get the data from the cookie (_id ) and then send the detials based on the id from the cookie back to the user.
-// the cookie has the data to which user it belongs and based upon that the details of the user are send back.
-
-app.get("/feed", async (req, res) => {
+// we will apply the userAuth here as the middleware.
+app.get("/feed", userAuth, async (req, res) => {
   try {
     const data = await User.find({});
-    console.log(data);
+    // console.log(data);
     // res.send("data founded successfully! " + "data is : \n" +  data + data.length);
     res.json({ success: true, data: data, length: data.length });
   } catch (error) {
@@ -159,7 +124,8 @@ app.get("/feed", async (req, res) => {
   }
 });
 
-app.delete("/user", async (req, res) => {
+// we will here apply the userAuth as the middleware.
+app.delete("/user", userAuth, async (req, res) => {
   const userId = req.body.userId;
   try {
     const deletedUser = await User.findByIdAndDelete(userId);
@@ -170,7 +136,8 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-app.patch("/user/:userId", async (req, res) => {
+// we will apply the userAuth here as middleware.
+app.patch("/user/:userId", userAuth, async (req, res) => {
   // API validations
   const userId = req.params?.userId; // we will take the userId from the params.
   const data = req.body;
@@ -205,6 +172,14 @@ app.patch("/user/:userId", async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
+});
+
+// we will create the route /sendconnectionrequest just to test the api. now to this api secure we just need to add the method userAuth as the middleware in the route and this api will get secured.
+// this adding the middleware in between will make sure that token is valid and only then we will able to get the access the route.
+// now to secure we will use the userAuth in the every api we have.
+app.post("/sendconnectionrequest", userAuth, async (req, res) => {
+  // console.log("sending the connection request" + "by " + req.user.firstName);
+  res.send("this is the test send connection request by " + req.user.firstName);
 });
 
 // ep 2.10
