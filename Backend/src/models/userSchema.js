@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    connections: {
+      // type: Schema.Types.ObjectId,
+      // ref: 
+    },
   },
   { timestamps: true } // adding the timestamps
 );
@@ -87,5 +91,3 @@ userSchema.methods.getPasswordValid = async function (passwordbyuser) {
 
 const User = mongoose.model("User", userSchema);
 module.exports = { User };
-
-
