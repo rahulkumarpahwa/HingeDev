@@ -54,18 +54,22 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
-
-authRouter.post("/logout", (req, res)=>{
-
+authRouter.post("/logout", (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.status(200).send("User Logged Out, Successfully!");
 });
 
-
 authRouter.delete("/delete", userAuth, async (req, res) => {
-  const userId = req.body.userId;
+  const userId = req.user._id;
   try {
     const deletedUser = await User.findByIdAndDelete(userId);
-    console.log("User deleted successfully!");
-    res.send("deleted user" + deletedUser);
+    res.cookie("token", null, { 
+      expires: new Date(Date.now()),
+    }); // deleting the cookies as well.
+    // console.log("User deleted successfully!" + deletedUser);
+    res.send({success : true, status: 200, message :"User deleted Successfully!"});
   } catch (error) {
     res.status(400).send(error.message);
   }
