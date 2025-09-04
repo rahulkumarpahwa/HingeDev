@@ -1,10 +1,11 @@
 # HingeDev Api;
 
 ## authRouter
+
 - POST /signup
 - POST /login
 - POST /logout
-- DELETE /delete (additional) 
+- DELETE /delete (additional)
 
 ## profileRouter
 
@@ -16,10 +17,19 @@
 
 - POST /request/send/interested/:userId
 - POST /request/send/ignored/:userId
+
+-> these two apis can be combined as :
+
+- POST /request/send/:status/:userId
+
 - POST /request/review/accepted/:requestId
 - POST /request/review/rejected/:requestId
 
-Status : ignore. interested, accepted, rejected.
+-> these two apis can be combined as :
+
+- POST /request/review/:status/:requestId
+
+Status : ignored, interested, accepted, rejected.
 
 ## userRouter
 

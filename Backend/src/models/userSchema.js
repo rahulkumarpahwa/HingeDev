@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
+      enum: {
+        values: ["male", "female", "others"],
+        message: "{VALUE} is not a valid gender type ",
+      },
       validate(value) {
         // refer to the note below.
         if (!["male", "female", "others"].includes(value)) {
@@ -65,10 +69,12 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
-    connections: {
-      // type: Schema.Types.ObjectId,
-      // ref: 
-    },
+    // It is bad idea. why ? because their are so edge cased like the storing the userId will nt make the sense. as the some requests may get aaccepted. some may get hanged in between and some are reqjected and so on. so that's why it is difficult to handled here.
+    // Also, the schema defines the something. like userSchema defines the user and similarly we will create a new schema which will define the connection.
+    // connections: {
+    //   // type: Schema.Types.ObjectId,
+    //   // ref:
+    // },
   },
   { timestamps: true } // adding the timestamps
 );

@@ -4,6 +4,7 @@ const { User } = require("../models/userSchema.js");
 const validator = require("validator");
 const { validateSignUpData } = require("../utils/validation.js");
 const { userAuth } = require("../middlewares/auth.js");
+const ConnectionRequestModel = require("../models/connectionRequest.js");
 
 const authRouter = express.Router();
 
@@ -62,14 +63,33 @@ authRouter.post("/logout", (req, res) => {
 });
 
 authRouter.delete("/delete", userAuth, async (req, res) => {
-  const userId = req.user._id;
   try {
+    const userId = req.user._id;
+
+    // deleting all the connectionRequest when the user is no longer exits! either Interested, Ignored.
+    const deletedConnectionRequest =
+      await ConnectionRequestModel.deleteMany({
+        $or: [
+          { 
+
+            toUserId: userId,
+          },
+          {
+            fromUserId: userId,
+          },
+        ],
+      });
+
     const deletedUser = await User.findByIdAndDelete(userId);
-    res.cookie("token", null, { 
+    res.cookie("token", null, {
       expires: new Date(Date.now()),
     }); // deleting the cookies as well.
     // console.log("User deleted successfully!" + deletedUser);
-    res.send({success : true, status: 200, message :"User deleted Successfully!"});
+    res.send({
+      success: true,
+      status: 200,
+      message: "User deleted Successfully!",
+    });
   } catch (error) {
     res.status(400).send(error.message);
   }
