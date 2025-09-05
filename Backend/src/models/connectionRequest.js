@@ -32,6 +32,11 @@ const connectionRequestSchema = new mongoose.Schema(
   }
 );
 
+// creating index (compound index) to make the query faster: 
+connectionRequestSchema.index({fromUserId: 1, toUserId : 1}); // 1 -> ascending
+// more at : https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/
+
+
 // this is the middleware in the schema. It is called the 'pre' defined in the mongoose schema. here 'save' is the event before which it will take in action. don't use the arrow function.
 connectionRequestSchema.pre("save", function (next) {
   const connectionRequest = this; // any instance of the ConectionRequestModel

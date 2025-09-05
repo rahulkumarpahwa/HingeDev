@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true, // makes the email unique and can't add the duplicate email.
+      // unique field does not need to create the index as the mongoDB creates the index by itself for such properties.
       lowercase: true, // when stored converted to the lowercase, from any case entered by the user.
       trim: true, //this will remove the extra front and back spaces.
       validate(value) {
