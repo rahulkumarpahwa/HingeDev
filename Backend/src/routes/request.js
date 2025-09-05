@@ -26,7 +26,7 @@ requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res) => {
     // sending the connection request to itself : NOT Allowed
     // if (toUserId == req.user._id) { // don't use the ===. as the type in not same, we just need to match the value.
     //   throw new Error("This Request is not allowed!");
-    // } 
+    // }
     // Already defined in the connectionRequestSchema using the schema middleware 'pre'.
 
     // checking if the user to which I am sending the request exist or not!
@@ -77,6 +77,7 @@ requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res) => {
   }
 });
 
+// review route :
 requestRouter.post(
   "/review/:status/:fromUserId",
   userAuth,
@@ -98,19 +99,44 @@ requestRouter.post(
         return; // must write the return otherwise you will get the error : `cannot set the headers after they are sent`.
       }
 
-      const newConnectionRequest = new ConnectionRequestModel({
+      // sending the connection request to itself : NOT Allowed
+      if (fromUserId == req.user._id) {
+        // don't use the ===. as the type in not same, we just need to match the value.
+        throw new Error("This Request is not allowed!");
+      }
+
+      // checking if the user from which I am getting the request exist or not!
+      const fromUser = await User.findById(fromUserId);
+      if (!fromUser) {
+        return res.status(400).json({
+          success: false,
+          status: 400,
+          message: "User Does not Exist!",
+        });
+      }
+
+      // first finding that the "interested" request should exist from the fromUserId only then it can be either accepted or rejected.
+      const findingConnectionRequest = await ConnectionRequestModel.findOne({
+        // only a single request is their from a user.
         fromUserId,
         toUserId: req.user._id,
-        status,
+        status: "interested", // only the interested ones can be converted the accepted ones.
       });
 
-      await newConnectionRequest.save();
+      if (!findingConnectionRequest) {
+        throw new Error(
+          "'Acception' is not possible for the request which does not exist in 'Interested'"
+        );
+      }
+
+      findingConnectionRequest.status = status; // updating the connection to accepeted or rejected.
+      await findingConnectionRequest.save();
 
       res.json({
         success: true,
         status: 200,
         message: `${status} Connection Reviewed Successfully!`,
-        data: newConnectionRequest,
+        data: findingConnectionRequest,
       });
     } catch (error) {
       res.status(400).send(error.message);

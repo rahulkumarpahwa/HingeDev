@@ -32,16 +32,16 @@ const connectionRequestSchema = new mongoose.Schema(
   }
 );
 
-
-// this is the middleware in the schema. It is called the 'pre' defined in the mongoose schema. here 'save' is the event before which it will take in action. don't use the arrow function. 
+// this is the middleware in the schema. It is called the 'pre' defined in the mongoose schema. here 'save' is the event before which it will take in action. don't use the arrow function.
 connectionRequestSchema.pre("save", function (next) {
-  const connectionRequest = this; // any instance of the ConectionRequestMOdel
+  const connectionRequest = this; // any instance of the ConectionRequestModel
   // check if the fromUserId is same as the toUserId.
   if (connectionRequest.toUserId.equals(connectionRequest.fromUserId)) {
     throw new Error("Sending Request to itself is not allowed!");
   }
   next(); // calling the next method of the middleware. must write this.
 });
+
 
 const ConnectionRequestModel = new mongoose.model(
   "ConnectionRequestModel",
