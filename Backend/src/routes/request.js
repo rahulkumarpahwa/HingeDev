@@ -77,7 +77,7 @@ requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res) => {
   }
 });
 
-// review route :
+// review route : to review the request sended to you!
 requestRouter.post(
   "/review/:status/:fromUserId",
   userAuth,
@@ -118,7 +118,7 @@ requestRouter.post(
       // first finding that the "interested" request should exist from the fromUserId only then it can be either accepted or rejected.
       const findingConnectionRequest = await ConnectionRequestModel.findOne({
         // only a single request is their from a user.
-        fromUserId,
+        fromUserId, // we can use the _id of the connectionRequest here as well.
         toUserId: req.user._id,
         status: "interested", // only the interested ones can be converted the accepted ones.
       });
