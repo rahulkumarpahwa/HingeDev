@@ -3,12 +3,45 @@ const { userAuth } = require("../middlewares/auth.js");
 const { User } = require("../models/userSchema.js");
 const ConnectionRequestModel = require("../models/connectionRequest.js");
 const userRouter = express.Router();
-
 userRouter.get("/feed", userAuth, async (req, res) => {
+  // user should see all the user cards except:
+  // 0. his own card.
+  // 1. his connections.
+  // 2. ignored people.
+  // 3. already sent the connection request.
+
   try {
-    const data = await User.find({}).select(
-      "-password -email -createdAt -updatedAt"
-    ); // removing the password and email from the feed.
+    const loggedInUser = req.user;
+    // find all connection requests (sent + recieved)
+    const connectionRequests = await ConnectionRequestModel.find({
+      $or: [
+        {
+          toUserId: loggedInUser._id,
+        },
+        {
+          fromUserId: loggedInUser._id,
+        },
+      ],
+    }).select("fromUserId toUserId");
+
+    // creating a set to have the users which must be hidden based upon the conditions above.
+    const hiddenUsersFromFeed = new Set();
+    connectionRequests.forEach((req) => {
+      hiddenUsersFromFeed.add(req.fromUserId.toString());
+      hiddenUsersFromFeed.add(req.toUserId.toString());
+    });
+
+
+    // $nin : not in 
+    // $ne : not equal to
+
+    const data = await User.find({
+      $and: [
+        { _id: { $nin: Array.from (hiddenUsersFromFeed) } },
+        // converting to Array from the set.
+        { _id: { $ne: loggedInUser._id } },
+      ],
+    }).select("-password -email -createdAt -updatedAt"); // removing the password and email from the feed.
     res.json({ success: true, status: 200, length: data.length, data: data });
   } catch (error) {
     res.status(400).json({ success: false, status: 400, error: error.message });
@@ -28,12 +61,13 @@ userRouter.get("/connections", userAuth, async (req, res) => {
     ); // populate is only possible after we have make the 'ref' reference in the connectionRequestSchema.;
 
     const data = allConnections.map((row) => {
-      if (row.fromUserId._id.equals(userId)) {  // 
+      if (row.fromUserId._id.equals(userId)) {
+        //
         // NOTE : use the equals() method here as the userId and fromUserId._id both are objectId and not strings.
         // OR convert both to the the strings using toString() method and then compare using ===
         // when the curr user is sender then we will show the reciever (toUserId)
         return row.toUserId;
-      } else { 
+      } else {
         // otherwise we will show the user who has send the request.
         return row.fromUserId;
       }
