@@ -3,6 +3,17 @@ const { userAuth } = require("../middlewares/auth.js");
 const { User } = require("../models/userSchema.js");
 const ConnectionRequestModel = require("../models/connectionRequest.js");
 const userRouter = express.Router();
+
+/* /feed?page=1&limit=10 => 1-10 => .skip(0) & .limit(10)
+
+    /feed?page=2&limit=10 => 11-20 => .skip(10) & .limit(10)
+
+    /feed?page=3&limit=10 => 21-30 => .skip(20) & .limit(10)
+
+    /feed?page=4&limit=10 => 21-30 => .skip(3 0) & .limit(10)
+
+    skip = (page-1)*limit; */
+
 userRouter.get("/feed", userAuth, async (req, res) => {
   // user should see all the user cards except:
   // 0. his own card.
@@ -11,6 +22,13 @@ userRouter.get("/feed", userAuth, async (req, res) => {
   // 3. already sent the connection request.
 
   try {
+    const page = paraseInt(req.query.page) || 1;
+    const limit = paraseInt(req.query.limit) || 10;
+
+    // sanitise the limit:
+    limit = limit > 50 ? 50 : limit; // when limit greater than 50 we will fix that to 50.
+    const skip = (page - 1) * limit;
+
     const loggedInUser = req.user;
     // find all connection requests (sent + recieved)
     const connectionRequests = await ConnectionRequestModel.find({
@@ -31,17 +49,23 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       hiddenUsersFromFeed.add(req.toUserId.toString());
     });
 
-
-    // $nin : not in 
+    // $nin : not in
     // $ne : not equal to
 
     const data = await User.find({
       $and: [
-        { _id: { $nin: Array.from (hiddenUsersFromFeed) } },
+        { _id: { $nin: Array.from(hiddenUsersFromFeed) } },
         // converting to Array from the set.
         { _id: { $ne: loggedInUser._id } },
       ],
-    }).select("-password -email -createdAt -updatedAt"); // removing the password and email from the feed.
+    })
+      .select("-password -email -createdAt -updatedAt")
+      .skip(skip) // default value of skip is 0.
+      .limit(limit); // removing the password and email from the feed.
+      // adding the skip and the limit.
+      // skip : no of objects to be skipped.
+      // limit : to limit the no. of object.
+
     res.json({ success: true, status: 200, length: data.length, data: data });
   } catch (error) {
     res.status(400).json({ success: false, status: 400, error: error.message });
