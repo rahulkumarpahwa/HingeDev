@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const { connectDB } = require("./config/database.js");
+const cors = require("cors");
 const port = 8000;
 
 connectDB()
@@ -15,7 +16,16 @@ connectDB()
     console.log(err.message);
   });
 
+const corsOptions = {
+  origin: ["http://localhost:5173", "https://thehomely.netlify.app"],
+  methods: ["GET", "POST", "PUT", "PATCH"],
+  optionsSuccessStatus: 200,
+  credentials: true, // allow cookies and credentials
+};
+
+app.use(cors(corsOptions)); // cors middlewares.
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // parsing the cookies.
 
 // make sure to put these after the parser.

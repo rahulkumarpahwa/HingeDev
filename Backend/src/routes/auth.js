@@ -46,7 +46,18 @@ authRouter.post("/login", async (req, res) => {
       const token = await findUser.getJWT();
       res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
 
-      res.send("Login Successfully!");
+      // need to convert the findUser mongoose document to object to have the js methods over it.
+      const user = Object.keys(findUser.toObject()).reduce((acc, key) => {
+        if (key !== "password") acc[key] = findUser[key]; // acc means accumulator
+        return acc;
+      }, {});
+
+      res.json({
+        success: true,
+        status: 200,
+        message: "Login Successfully!",
+        data: user,
+      });
     } else {
       throw new Error("Invalid Credentials!");
     }
@@ -67,18 +78,16 @@ authRouter.delete("/delete", userAuth, async (req, res) => {
     const userId = req.user._id;
 
     // deleting all the connectionRequest when the user is no longer exits! either Interested, Ignored.
-    const deletedConnectionRequest =
-      await ConnectionRequestModel.deleteMany({
-        $or: [
-          { 
-
-            toUserId: userId,
-          },
-          {
-            fromUserId: userId,
-          },
-        ],
-      });
+    const deletedConnectionRequest = await ConnectionRequestModel.deleteMany({
+      $or: [
+        {
+          toUserId: userId,
+        },
+        {
+          fromUserId: userId,
+        },
+      ],
+    });
 
     const deletedUser = await User.findByIdAndDelete(userId);
     res.cookie("token", null, {
