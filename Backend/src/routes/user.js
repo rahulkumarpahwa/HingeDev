@@ -22,8 +22,8 @@ userRouter.get("/feed", userAuth, async (req, res) => {
   // 3. already sent the connection request.
 
   try {
-    const page = paraseInt(req.query.page) || 1;
-    const limit = paraseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
 
     // sanitise the limit:
     limit = limit > 50 ? 50 : limit; // when limit greater than 50 we will fix that to 50.

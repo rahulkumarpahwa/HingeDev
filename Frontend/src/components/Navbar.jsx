@@ -8,7 +8,7 @@ const Navbar = () => {
   return (
     <div className="navbar bg-[#89b0AE] shadow-lg py-3">
       <div className="flex-1">
-        <a className="text-xl">
+        <a className="text-xl" href="/">
           <div className="w-24 h-24 ml-2">
             <img src="./logo.png" alt="logo" className="w-full" />
           </div>

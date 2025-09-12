@@ -20,7 +20,7 @@ export const Login = () => {
       );
       console.log(response.data.user);
       dispatch(addUser(response.data.user));
-      navigate("/"); // navigating to the home route.
+      navigate("/feed"); // navigating to the home route.
     } catch (error) {
       console.log(error);
     }
