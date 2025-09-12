@@ -2,21 +2,25 @@ import { useState } from "react";
 import axios from "axios";
 import { addUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
+import { BASE_URL } from "../utils/constants";
 
 export const Login = () => {
   const [email, setEmail] = useState("bananakumar@gmail.com");
   const [password, setPassword] = useState("Apple@1999");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const loginPostRequest = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/login",
+        `${BASE_URL}/login`,
         { email, password },
         { withCredentials: true } // Add this if backend uses cookies
       );
       console.log(response.data.user);
       dispatch(addUser(response.data.user));
+      navigate("/"); // navigating to the home route.
     } catch (error) {
       console.log(error);
     }
