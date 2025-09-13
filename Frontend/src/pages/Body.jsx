@@ -13,7 +13,7 @@ export const Body = () => {
   const userData = useSelector((store) => store.user);
 
   const fetchUser = async () => {
-    if(userData) return;  // we will api call only when we don't have the user data.
+    if (userData) return; // we will api call only when we don't have the user data.
     try {
       const response = await axios.get(BASE_URL + "/profile/view", {
         withCredentials: true,
@@ -21,15 +21,17 @@ export const Body = () => {
       dispatch(addUser(response.data));
     } catch (error) {
       if (error.response.status === 401) {
-        navigate("/login");
+        return navigate("/");
       }
-      console.log(error.response);
+      error.response != null
+        ? console.log(error.response.data)
+        : console.log(error.message);
     }
   };
 
   // when the component loads this will happen on the first load of the component.
   useEffect(() => {
-      fetchUser();
+    fetchUser();
   }, []);
 
   return (

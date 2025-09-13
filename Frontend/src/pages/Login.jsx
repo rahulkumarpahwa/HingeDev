@@ -8,6 +8,7 @@ import { BASE_URL } from "../utils/constants";
 export const Login = () => {
   const [email, setEmail] = useState("bananakumar@gmail.com");
   const [password, setPassword] = useState("Apple@1999");
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -20,8 +21,11 @@ export const Login = () => {
       );
       console.log(response.data.user);
       dispatch(addUser(response.data.user));
-      return navigate("/"); // navigating to the home route.
+      return navigate("/feed"); // navigating to the home route.
     } catch (error) {
+      error.response != null
+        ? setError(error.response.data)
+        : setError(error.message + "!");
       console.log(error);
     }
   };
@@ -63,6 +67,7 @@ export const Login = () => {
               <div>
                 <a className="link link-hover">Forgot password?</a>
               </div>
+              <p className="text-red-500 text-center font-bold">{error}</p>
               <button
                 className="btn btn-neutral mt-4"
                 onClick={loginPostRequest}

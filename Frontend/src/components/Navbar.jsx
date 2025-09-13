@@ -1,11 +1,30 @@
 import { useDispatch, useSelector } from "react-redux";
 import { removeUser } from "../utils/userSlice";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { BASE_URL } from "../utils/constants";
+import axios from "axios";
 
 const Navbar = () => {
   const user = useSelector((state) => state.user);
   //the above one is the is subscribing to the user.
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post(
+        BASE_URL + "/logout",
+        {},
+        { withCredentials: true }
+      );
+      dispatch(removeUser());
+      console.log(response);
+      return navigate("/login");
+    } catch (error) {
+      console.log(error?.response?.data || "Something went wrong!");
+    }
+  };
+
   return (
     <div className="navbar bg-[#89b0AE] shadow-lg py-3">
       <div className="flex-1">
@@ -51,7 +70,7 @@ const Navbar = () => {
                   <a>Change Password</a>
                 </li>
                 <li>
-                  <button onClick={() => dispatch(removeUser())}>Logout</button>
+                  <button onClick={handleLogout}>Logout</button>
                 </li>
               </ul>
             </div>
