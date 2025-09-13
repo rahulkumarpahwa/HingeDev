@@ -15,12 +15,13 @@ const secret = "jhfsdfhshfsfhhfjahfkasfhk"; // any random secret for the jwt. ca
 //   }
 // };
 
-
 const userAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
     if (!token) {
-      throw new Error("Invalid Token!");
+      // throw new Error("Invalid Token!");
+      // to make properly handled we will make this response.
+      return res.status(401).json("Please Login!");
     }
 
     const decodedToken = await jwt.verify(token, secret);
