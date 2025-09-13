@@ -1,39 +1,8 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import { Footer } from "../components/Footer.jsx";
 import Navabar from "../components/Navbar.jsx";
-import { BASE_URL } from "../utils/constants.js";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "../utils/userSlice.js";
-import { useEffect } from "react";
 
 export const Body = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const userData = useSelector((store) => store.user);
-
-  const fetchUser = async () => {
-    if (userData) return; // we will api call only when we don't have the user data.
-    try {
-      const response = await axios.get(BASE_URL + "/profile/view", {
-        withCredentials: true,
-      });
-      dispatch(addUser(response.data));
-    } catch (error) {
-      if (error.response.status === 401) {
-        return navigate("/");
-      }
-      error.response != null
-        ? console.log(error.response.data)
-        : console.log(error.message);
-    }
-  };
-
-  // when the component loads this will happen on the first load of the component.
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
   return (
     <>
       <Navabar />

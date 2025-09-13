@@ -28,11 +28,11 @@ const Navbar = () => {
   return (
     <div className="navbar bg-[#89b0AE] shadow-lg py-3">
       <div className="flex-1">
-        <Link className="text-xl" to="/">
-          <div className="w-24 h-24 ml-2">
+        <div className="w-24 h-24 ml-2">
+          <Link className="text-xl" to="/">
             <img src="./logo.png" alt="logo" className="w-full" />
-          </div>
-        </Link>
+          </Link>
+        </div>
       </div>
       <div className="flex gap-2">
         {/* <input
@@ -60,6 +60,12 @@ const Navbar = () => {
                 <li>
                   <Link className="justify-between" to="/profile">
                     Profile
+                    <span className="badge">New</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link className="justify-between" to="/feed">
+                    Feed
                     <span className="badge">New</span>
                   </Link>
                 </li>
