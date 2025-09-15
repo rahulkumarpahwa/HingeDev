@@ -13,11 +13,11 @@ export const Profile = () => {
           <h1 className="text-center font-bold text-4xl">Profile Details</h1>
           <div className="flex items-center justify-between space-x-12 gap-40">
             <div className="flex items-center justify-center space-x-8">
-              <div className="w-24">
+              <div className="w-[150px] h-[150px]">
                 <img
                   src={photoUrl}
                   alt={firstName}
-                  className="w-full rounded-full"
+                  className="w-full h-full rounded-full"
                 />
               </div>
               <div className="flex items-center justify-center flex-col">
@@ -65,8 +65,8 @@ export const Profile = () => {
           </div>
 
           <div className="">
-            <h2 className="text-3xl py-5">About Me</h2>
-            <p className="line-clamp-4">{about}</p>
+            <h2 className="text-3xl py-5 text-wrap">About Me</h2>
+            <p className="line-clamp-2">{about}</p>
           </div>
         </div>
       </div>
