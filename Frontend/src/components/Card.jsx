@@ -1,20 +1,30 @@
-export const Card = () =>{
-return <div className="card bg-base-100 w-96 shadow-sm">
-  <figure>
-    <img
-      src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-      alt="Shoes" />
-  </figure>
-  <div className="card-body">
-    <h2 className="card-title">
-      Card Title
-      <div className="badge badge-secondary">NEW</div>
-    </h2>
-    <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-    <div className="card-actions justify-end">
-      <div className="badge badge-outline">Fashion</div>
-      <div className="badge badge-outline">Products</div>
+import { FaHeart } from "react-icons/fa6";
+import { FaXmark } from "react-icons/fa6";
+
+export const Card = ({ user }) => {
+  const { firstName, lastName, skills, photoUrl, about, age, gender } =
+    user;
+  return (
+    <div className="card bg-base-200 text-center shadow-xl border-2 border-zinc-300" >
+      <figure>
+        <img src={photoUrl} alt={firstName} />
+      </figure>
+      <div className="card-body">
+        <h2 className="card-title">
+          {firstName} {lastName}
+          <div className="badge badge-primary">{age}{"  "}{gender == "male" ? "M" : "F"}</div>
+        </h2>
+        <p>
+         {about}
+        </p>
+        <p>
+         Loves : {skills.toString()}
+        </p>
+        <div className="card-actions justify-center text-3xl">
+          <div className="badge badge-outline text-green-600"><FaHeart  size={20} /></div>
+          <div className="badge badge-outline text-red-500"><FaXmark size={20} /></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  );
 };

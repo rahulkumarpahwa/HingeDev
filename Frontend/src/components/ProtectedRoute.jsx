@@ -35,6 +35,7 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
+  // eslint-disable-next-line
   }, []);
 
   if (loading) return <div>Loading...</div>;
