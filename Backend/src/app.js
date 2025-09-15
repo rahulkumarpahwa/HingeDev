@@ -17,7 +17,7 @@ connectDB()
   });
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://thehomely.netlify.app"],
+  origin: ["http://localhost:5173", "https://hingedev.netlify.app"],
   methods: ["GET", "POST", "PUT", "PATCH"],
   optionsSuccessStatus: 200,
   credentials: true, // allow cookies and credentials

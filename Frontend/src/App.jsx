@@ -11,6 +11,7 @@ import { Profile } from "./pages/Profile.jsx";
 
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { Home } from "./pages/Home.jsx";
+import { EditProfile } from "./pages/EditProfile.jsx";
 
 function App() {
   return (
@@ -36,6 +37,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/editprofile"
+                element={
+                  <ProtectedRoute>
+                    <EditProfile />
                   </ProtectedRoute>
                 }
               />
