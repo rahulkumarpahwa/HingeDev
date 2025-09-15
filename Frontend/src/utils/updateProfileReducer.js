@@ -15,7 +15,7 @@ export const reducer = (state, action) => {
       return { ...state, photoUrl: action.payload };
     case actions.updateSkills:
       return { ...state, skills: action.payload };
-    case action.updateAge:
+    case actions.updateAge:
       return { ...state, age: action.payload };
     default:
       return state;

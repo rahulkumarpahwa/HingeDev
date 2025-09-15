@@ -1,9 +1,10 @@
 import { useReducer, useState } from "react";
 import { actions, reducer } from "../utils/updateProfileReducer";
-import { useSelector } from "react-redux";
-import { Link } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants.js";
+import { fetchUser } from "../utils/fetchUser.js";
 
 //https://medium.com/@sriweb/replace-multiple-usestate-hooks-with-usereducer-f70b0a058343
 
@@ -20,6 +21,7 @@ export const EditProfile = () => {
 
   // this reducer is not linked to redux.
   const [state, dispatch] = useReducer(reducer, initialState);
+  const navigate = useNavigate();
 
   const updateAbout = (about) => {
     dispatch({ type: actions.updateAbout, payload: about });
@@ -37,6 +39,9 @@ export const EditProfile = () => {
     dispatch({ type: actions.updateAge, payload: age });
   };
 
+  // calling the fetch User Api to get the details updated in the redux store as well!
+  const storeDispatch = useDispatch(); // redux store 
+
   // calling the api to update the data:
   const handleUpdateProfile = async () => {
     try {
@@ -44,6 +49,8 @@ export const EditProfile = () => {
         withCredentials: true,
       });
       console.log(response.data.message);
+      fetchUser(storeDispatch);
+      return navigate("/profile");
     } catch (error) {
       setError(error?.response?.message || error.message + "!");
       console.log(error?.response?.message || error.message);
@@ -65,7 +72,8 @@ export const EditProfile = () => {
               placeholder="Enter New Age"
               value={state.age}
               onChange={(e) => {
-                updateAge(e.target.value);
+                const val = e.target.value;
+                updateAge(val === "" ? "" : Number(val));
               }}
             />
             <label className="label">About</label>

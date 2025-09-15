@@ -1,10 +1,8 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router";
 import { useNavigate } from "react-router";
-import { BASE_URL } from "../utils/constants.js";
-import axios from "axios";
-import { addUser } from "../utils/userSlice.js";
 import { useEffect, useState } from "react";
+import { fetchUser } from "../utils/fetchUser.js";
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -12,15 +10,11 @@ const ProtectedRoute = ({ children }) => {
   const user = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
 
-  const fetchUser = async () => {
+  const fetchData = async () => {
     if (user) return;
     setLoading(true);
     try {
-      const response = await axios.get(BASE_URL + "/profile/view", {
-        withCredentials: true,
-      });
-      console.log(response.data);
-      dispatch(addUser(response.data));
+      fetchUser(dispatch);
     } catch (error) {
       if (error.response && error.response.status === 401) {
         navigate("/login");
@@ -34,8 +28,8 @@ const ProtectedRoute = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchUser();
-  // eslint-disable-next-line
+    fetchData();
+    // eslint-disable-next-line
   }, []);
 
   if (loading) return <div>Loading...</div>;
