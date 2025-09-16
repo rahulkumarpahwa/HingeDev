@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants.js";
 import { Card } from "../components/Card.jsx";
+import { DiasyToast } from "../components/DiasyToast.jsx";
 
 //https://medium.com/@sriweb/replace-multiple-usestate-hooks-with-usereducer-f70b0a058343
 
@@ -67,7 +68,11 @@ export const EditProfile = () => {
       });
       console.log(response.data.newEdittedUser);
       storeDispatch(addUser(response.data.newEdittedUser)); // adding the data using the userSlice in redux store
-      return navigate("/profile");
+      setToastState(true);
+      setTimeout(() => {
+        setToastState(false);
+        navigate("/profile");
+      }, 1000);
     } catch (error) {
       setError(error?.response?.message || error.message + "!");
       console.log(error?.response?.message || error.message);
@@ -78,6 +83,7 @@ export const EditProfile = () => {
   // console.log(state);
 
   const [error, setError] = useState("");
+  const [toastState, setToastState] = useState(false);
 
   return (
     <div className="flex items-center justify-center flex-col gap-7 p-20">
@@ -106,9 +112,7 @@ export const EditProfile = () => {
                   updateLastName(e.target.value);
                 }}
               />
-              <label className="label">
-                Gender
-              </label>
+              <label className="label">Gender</label>
               <select
                 name="gender"
                 id="gender"
@@ -153,9 +157,11 @@ export const EditProfile = () => {
                 type="text"
                 className="input"
                 placeholder="Add New Photo URL"
-                value={state.photoUrl!="/dummy.jpg" ? state.photoUrl : "" }
+                value={state.photoUrl != "/dummy.jpg" ? state.photoUrl : ""}
                 onChange={(e) => {
-                  changePhotoUrl(e.target.value == "" ? "/dummy.jpg" : e.target.value);
+                  changePhotoUrl(
+                    e.target.value == "" ? "/dummy.jpg" : e.target.value
+                  );
                 }}
               />
 
@@ -190,6 +196,7 @@ export const EditProfile = () => {
         </div>
         <Card user={state} />
       </div>
+      {toastState && <DiasyToast data={"Profile Updated SuccessFully!"} />}
     </div>
   );
 };
