@@ -136,8 +136,10 @@ export const EditProfile = () => {
                 }}
               />
               <label className="label">About</label>
-              <input
+              <textarea
                 type="text"
+                rows={2}
+                cols={6}
                 className="input"
                 placeholder="Add New About"
                 value={state.about}
@@ -151,9 +153,9 @@ export const EditProfile = () => {
                 type="text"
                 className="input"
                 placeholder="Add New Photo URL"
-                value={state.photoUrl}
+                value={state.photoUrl!="/dummy.jpg" ? state.photoUrl : "" }
                 onChange={(e) => {
-                  changePhotoUrl(e.target.value);
+                  changePhotoUrl(e.target.value == "" ? "/dummy.jpg" : e.target.value);
                 }}
               />
 
