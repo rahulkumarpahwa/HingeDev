@@ -24,14 +24,24 @@ profileRouter.patch("/edit", userAuth, async (req, res) => {
     }
 
     // other validations:
-    const { photoUrl, skills } = req.body;
+    const { firstName, lastName, gender, photoUrl, skills } = req.body;
+
+    if (!firstName || !lastName) {
+      throw new Error("FirstName and LastName must Exist!");
+    }
 
     if (skills != null && skills.length > 10) {
       throw new Error("Skills should be less than 10! Update Not Allowed!");
     }
 
     if (photoUrl != "" && !validator.isURL(photoUrl)) {
-      throw new Error("photo url must be a link!");
+      throw new Error("Photo URL must be a link!");
+    }
+
+    const ALLOWED_GENDER_VALUES = ["male", "female", "others"];
+    const isGenderAllowed = ALLOWED_GENDER_VALUES.includes(gender);
+    if (!isGenderAllowed) {
+      throw new Error("Gender Must be Valid!");
     }
 
     const loggedInUser = req.user; // attached by the auth user.
@@ -45,7 +55,7 @@ profileRouter.patch("/edit", userAuth, async (req, res) => {
       success: true,
       status: 200,
       message: `${loggedInUser.firstName}, your profile has been updated!`,
-      edits: req.body,
+      newEdittedUser: updatedUser, // sending the new updated Data of the whole user.
     });
   } catch (error) {
     res.status(400).send(error.message);
@@ -72,7 +82,7 @@ profileRouter.patch("/password", userAuth, async (req, res) => {
 
     // hashing and salting :
     const passwordHash = await bcrypt.hash(newPassword, 10); // password and 10 salt rounds.
-    const updatedUser = await User.findByIdAndUpdate( req.user._id, {
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, {
       password: passwordHash,
     });
 
