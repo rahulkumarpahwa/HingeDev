@@ -20,15 +20,15 @@ export const Profile = () => {
                   className="w-full h-full rounded-full"
                 />
               </div>
-              <div className="flex items-center justify-center flex-col">
-                <p className="font-bold text-2xl">
+              <div className="flex justify-center flex-col">
+                <p className="font-bold text-xl">
                   {firstName} {lastName}
                 </p>
                 <div className="grid grid-cols-2 gap-1 space-x-5">
                   <p>Age</p>
                   <p> {age}</p>
                   <p>Gender </p>
-                  <p> {gender}</p>
+                  <p> {gender.charAt(0).toUpperCase() + gender.slice(1)}</p>
                 </div>
               </div>
             </div>

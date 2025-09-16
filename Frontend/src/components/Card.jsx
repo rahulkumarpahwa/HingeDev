@@ -5,7 +5,7 @@ export const Card = ({ user }) => {
   const { firstName, lastName, skills, photoUrl, about, age, gender } =
     user;
   return (
-    <div className="card bg-base-200 text-center shadow-xl border-2 border-zinc-300 w-md h-[35rem]" >
+    <div className="card bg-base-200 text-center shadow-xl border-2 border-zinc-300 w-md" >
       <figure className="">
         <img src={photoUrl} alt={firstName} className="w-full" />
       </figure>
