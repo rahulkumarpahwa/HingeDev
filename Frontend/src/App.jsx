@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { Home } from "./pages/Home.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
 import Connections from "./pages/Connections.jsx";
+import Requests from "./pages/Requests.jsx";
 
 function App() {
   return (
@@ -56,6 +57,16 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Connections />
+                  </ProtectedRoute>
+                }
+              />
+
+
+              <Route
+                path="/requests"
+                element={
+                  <ProtectedRoute>
+                    <Requests />
                   </ProtectedRoute>
                 }
               />

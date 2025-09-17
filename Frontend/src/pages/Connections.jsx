@@ -3,8 +3,6 @@ import { BASE_URL } from "../utils/constants.js";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionsSlice.js";
-import { MdNotInterested } from "react-icons/md";
-import { SiTicktick } from "react-icons/si";
 
 const Connections = () => {
   const dispatch = useDispatch();
@@ -50,14 +48,14 @@ const Connections = () => {
             skills,
           } = connection;
           return (
-            <div key={_id} className="card w-96 bg-base-100 card-xs shadow-sm">
+            <div key={_id} className="card bg-base-100 card-xs shadow-sm">
               <div className="p-4 flex items-center justify-center space-x-4">
                 <div className="avatar">
                   <div className="ring-primary ring-offset-base-100 w-24 rounded-full ring-2 ring-offset-2">
                     <img src={photoUrl} />
                   </div>
                 </div>
-                <div className="flex flex-col items-center justify-center">
+                <div className="flex flex-col justify-center">
                   <h2 className="card-title">
                     {firstName + " " + lastName}{" "}
                     <div className="badge badge-primary">
@@ -67,7 +65,7 @@ const Connections = () => {
                     </div>
                   </h2>
                   <p>{about}</p>
-                  <p>{skills}</p>
+                  <p>Loves : {skills.toString()}</p>
                 </div>
               </div>
             </div>
