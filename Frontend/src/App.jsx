@@ -12,6 +12,7 @@ import { Profile } from "./pages/Profile.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { Home } from "./pages/Home.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
+import Connections from "./pages/Connections.jsx";
 
 function App() {
   return (
@@ -46,6 +47,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <EditProfile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/connections"
+                element={
+                  <ProtectedRoute>
+                    <Connections />
                   </ProtectedRoute>
                 }
               />

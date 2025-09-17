@@ -70,7 +70,10 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
-                  <a>Edit Profile</a>
+                  <Link to={"/editprofile"}>Edit Profile</Link>
+                </li>
+                <li>
+                  <Link to={"/connections"}>Connections</Link>
                 </li>
                 <li>
                   <a>Change Password</a>

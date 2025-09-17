@@ -81,7 +81,7 @@ userRouter.get("/connections", userAuth, async (req, res) => {
       status: "accepted",
     }).populate(
       "fromUserId toUserId",
-      "firstName lastName photoUrl age gender about"
+      "firstName lastName photoUrl age gender about skills"
     ); // populate is only possible after we have make the 'ref' reference in the connectionRequestSchema.;
 
     const data = allConnections.map((row) => {
