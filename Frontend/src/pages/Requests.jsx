@@ -25,6 +25,7 @@ const Requests = () => {
 
   useEffect(() => {
     getRequests();
+  // eslint-disable-next-line
   }, []);
 
   return (

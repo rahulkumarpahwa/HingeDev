@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { GiLovers } from "react-icons/gi";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -6,18 +7,22 @@ export const Home = () => {
     <div
       className="hero min-h-screen"
       style={{
-        backgroundImage:
-          "url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp)",
+        backgroundImage: "url(/home_photo.jpg)",
       }}
     >
       <div className="hero-overlay"></div>
       <div className="hero-content text-neutral-content text-center">
-        <div className="max-w-md">
-          <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
+        <div className="">
+          <h1 className="mb-5 text-5xl font-bold">
+            {" "}
+            HingeDev <br />
+            "Because developers deserve their own match."
+          </h1>
           <p className="mb-5">
-            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
-            a id nisi.
+            HingeDev is a full-stack Social Discovery Platform for developers.
+            Built with React.js, Tailwind CSS, DaisyUI, Redux Toolkit, Node.js,
+            Express.js, MongoDB, and JWT authentication, it helps developers
+            discover, connect, and collaborate with like-minded peers.
           </p>
           <button
             className="btn btn-primary"
@@ -25,7 +30,9 @@ export const Home = () => {
               navigate("/login");
             }}
           >
-            Get Started
+            Let's Go! <span>
+              <GiLovers  />
+            </span>
           </button>
         </div>
       </div>
