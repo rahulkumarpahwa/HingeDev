@@ -3,6 +3,7 @@ import { removeUser } from "../utils/userSlice";
 import { Link, useNavigate } from "react-router";
 import { BASE_URL } from "../utils/constants";
 import axios from "axios";
+import { removeFeed } from "../utils/feedSlice";
 
 const Navbar = () => {
   const user = useSelector((state) => state.user);
@@ -18,6 +19,7 @@ const Navbar = () => {
         { withCredentials: true }
       );
       dispatch(removeUser());
+      dispatch(removeFeed()); // deleting the feed is important, otherwise the next user on login will get the same feed.
       console.log(response);
       return navigate("/login");
     } catch (error) {
