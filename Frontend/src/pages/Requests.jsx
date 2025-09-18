@@ -2,7 +2,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import { useEffect } from "react";
-import { addRequests } from "../utils/requestsSlice.js";
+import { addRequests, removeRequests } from "../utils/requestsSlice.js";
 import { MdNotInterested } from "react-icons/md";
 import { SiTicktick } from "react-icons/si";
 import { FaHeartBroken } from "react-icons/fa";
@@ -14,16 +14,20 @@ const Requests = () => {
 
   const handleReviewRequest = async (status, interestedUserId) => {
     try {
-      const response = await axios.post( 
-        BASE_URL + "/request/review/" + status + "/" + interestedUserId, {},
-        { // must pass the empty body in the post request where nothing to send.
+      const response = await axios.post(
+        BASE_URL + "/request/review/" + status + "/" + interestedUserId,
+        {},
+        {
+          // must pass the empty body in the post request where nothing to send.
           withCredentials: true,
         }
       );
       toast.success(response?.data?.message);
       console.log(response);
+      dispatch(removeRequests(interestedUserId));
+      //interested UserID is the one which is sending request to the current user and we have to remove it from store only to show in current state once we have Accepted or Ignored.
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error(error?.message || error?.response?.data);
       console.log(error?.message || error?.response?.data);
     }
@@ -46,8 +50,7 @@ const Requests = () => {
     // eslint-disable-next-line
   }, []);
 
-
-   if (requests && requests.length == 0)
+  if (requests && requests.length == 0)
     return (
       <div className="text-center text-4xl font-bold min-h-[40rem] flex justify-center items-center">
         No, Requests Found!

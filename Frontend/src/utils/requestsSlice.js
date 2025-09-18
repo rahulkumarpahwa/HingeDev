@@ -7,8 +7,12 @@ const requestsSlice = createSlice({
     addRequests: (state, action) => {
       return action.payload;
     },
-    removeRequests: () => {
-      return null;
+    removeRequests: (state, action) => {
+      const newStateArray = state.filter(
+        (eachRequest) => eachRequest.fromUserId._id !== action.payload
+      );
+      return newStateArray;
+      // here we are taking out the request interested in the current user out of the current redux store to make it erase from the page.
     },
   },
 });
