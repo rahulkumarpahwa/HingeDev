@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router";
-import { GiLovers } from "react-icons/gi";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -25,13 +24,12 @@ export const Home = () => {
             discover, connect, and collaborate with like-minded peers.
           </p>
           <button
-            className="btn btn-primary"
+            className="btn btn-warning"
             onClick={() => {
               navigate("/login");
             }}
           >
-            Let's Go! <span>
-              <GiLovers  />
+            Let's Find Match! <span>
             </span>
           </button>
         </div>

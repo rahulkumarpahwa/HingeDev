@@ -26,8 +26,8 @@ const Connections = () => {
 
   if (connections && connections.length == 0)
     return (
-      <div className="text-center text-4xl font-bold">
-        No! Connections Found!
+      <div className="text-center text-4xl font-bold min-h-[40rem] flex justify-center items-center">
+        No, Connections Found!
       </div>
     );
 
