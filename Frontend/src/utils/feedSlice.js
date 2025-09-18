@@ -7,8 +7,10 @@ const feedSlice = createSlice({
     addFeed: (state, action) => {
       return action.payload; // it will passed to the current state.
     },
-    removeFeed: () => {
-      return null;
+    removeFeed: (state, action) => {
+      const newStateArr = state.filter((feed) => feed._id != action.payload);
+      // we are removing the element from the current state of the redux store which is either Interested or Ignored and we will remove the current id which is clicked on the page.
+      return newStateArr;
     },
   },
 });

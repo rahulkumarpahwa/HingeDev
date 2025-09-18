@@ -24,12 +24,12 @@ export const Profile = () => {
                 <p className="font-bold text-xl">
                   {firstName} {lastName}
                 </p>
-                <div className="grid grid-cols-2 gap-1 space-x-5">
+                {age && gender && <div className="grid grid-cols-2 gap-1 space-x-5">
                   <p>Age</p>
                   <p> {age}</p>
                   <p>Gender </p>
                   <p> {gender.charAt(0).toUpperCase() + gender.slice(1)}</p>
-                </div>
+                </div>}
               </div>
             </div>
 
