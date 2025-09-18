@@ -74,6 +74,12 @@ export const Login = () => {
               >
                 Login
               </button>
+              <button
+                className="btn btn-neutral mt-4"
+                onClick={() => navigate("/signup")}
+              >
+                Signup Instead!
+              </button>
             </fieldset>
           </div>
         </div>
