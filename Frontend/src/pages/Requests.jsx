@@ -23,12 +23,12 @@ const Requests = () => {
         }
       );
       toast.success(response?.data?.message);
-      console.log(response);
+      // console.log(response);
       dispatch(removeRequests(interestedUserId));
       //interested UserID is the one which is sending request to the current user and we have to remove it from store only to show in current state once we have Accepted or Ignored.
     } catch (error) {
       console.log(error);
-      toast.error(error?.message || error?.response?.data);
+      error && toast.error(error?.response?.data || error.message);
       console.log(error?.message || error?.response?.data);
     }
   };
@@ -38,7 +38,7 @@ const Requests = () => {
       const response = await axios.get(BASE_URL + "/user/requests/received", {
         withCredentials: true,
       });
-      console.log(response.data.data);
+      // console.log(response.data.data);
       dispatch(addRequests(response.data.data));
     } catch (error) {
       console.log(error.message || error.response.message);
