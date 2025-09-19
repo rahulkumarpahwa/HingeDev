@@ -22,7 +22,20 @@ authRouter.post("/signup", async (req, res) => {
       password: passwordHash,
     });
     await newUser.save();
-    res.send("data added successfully!");
+    const token = await newUser.getJWT();
+    res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
+
+    // need to convert the findUser mongoose document to object to have the js methods over it.
+    const user = Object.keys(newUser.toObject()).reduce((acc, key) => {
+      if (key !== "password") acc[key] = newUser[key]; // acc means accumulator
+      return acc;
+    }, {});
+    res.json({
+      success: true,
+      status: 200,
+      message: "User Signup Successfully!",
+      data: user,
+    });
   } catch (error) {
     res.status(400).send("error : " + error.message);
   }
