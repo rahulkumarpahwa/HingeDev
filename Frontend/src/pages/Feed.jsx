@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
-import { addFeed, removeFeed } from "../utils/feedSlice";
+import { addFeed } from "../utils/feedSlice";
 import { Card } from "../components/Card";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -24,6 +24,7 @@ const Feed = () => {
       // setFeed(response.data);
     } catch (error) {
       console.log(error.response.data);
+      toast.error(error?.response?.data || error.message);
     }
   };
 
@@ -31,27 +32,6 @@ const Feed = () => {
     getFeedData();
     // eslint-disable-next-line
   }, []);
-
-  const handleRequestSend = async (status, _toWhomWeAreInterested) => {
-    try {
-      const response = await axios.post(
-        BASE_URL + "/request/send/" + status + "/" + _toWhomWeAreInterested,
-        {}, // always pass the empty body when nothing to send.
-        { withCredentials: true }
-      );
-      console.log(response);
-      if (response && status == "interested") {
-        toast("❤️");
-      } else {
-        toast("😭");
-      }
-      dispatch(removeFeed(_toWhomWeAreInterested));
-      // we are passing the user which will be on the feed and we have to remove it, when clicked interested or ignored.
-    } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data || error.message);
-    }
-  };
 
   if (feed && feed.length == 0)
     return (
@@ -65,15 +45,10 @@ const Feed = () => {
       <div className="flex justify-center items-center bg-base-200 p-8">
         <div className="stack w-xs stack-start">
           {feed.map((row, index) => {
-            return (
-              <Card
-                key={index}
-                user={row}
-                handleRequestSend={handleRequestSend}
-              />
-            );
+            return <Card key={index} user={row} />;
           })}
         </div>
+        <Toaster />
       </div>
     )
   );
