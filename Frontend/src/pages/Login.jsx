@@ -1,16 +1,33 @@
-import { useState } from "react";
+import { useState, useReducer } from "react";
 import axios from "axios";
 import { addUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "../utils/constants";
 
+import { reducer } from "../utils/signupProfileReducer";
+import toast, { Toaster } from "react-hot-toast";
+
 export const Login = () => {
-  const [email, setEmail] = useState("applekumar@gmail.com");
-  const [password, setPassword] = useState("Apple@1999");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const [isLoginPage, setIsLoginPage] = useState(true);
+  const dispatchStore = useDispatch();
   const navigate = useNavigate();
+
+  const initialState = {
+    firstName: "",
+    lastName: "",
+  };
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const putFirstName = (firstName) => {
+    dispatch({ type: "PUT_FIRSTNAME", payload: firstName });
+  };
+  const putLastName = (lastName) => {
+    dispatch({ type: "PUT_LASTNAME", payload: lastName });
+  };
 
   const loginPostRequest = async () => {
     try {
@@ -20,7 +37,7 @@ export const Login = () => {
         { withCredentials: true } // Add this if backend uses cookies
       );
       console.log(response.data.user);
-      dispatch(addUser(response.data.user));
+      dispatchStore(addUser(response.data.user));
       return navigate("/feed"); // navigating to the home route.
     } catch (error) {
       error.response != null
@@ -30,11 +47,36 @@ export const Login = () => {
     }
   };
 
+  const handleSignUp = async () => {
+    try {
+      const response = await axios.post(
+        BASE_URL + "/signup",
+        { ...state, email, password },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response);
+      dispatchStore(addUser(response.data.data));
+      setTimeout(() => {
+        toast.success(response.data.message + "!");
+        return navigate("/feed");
+      }, 1000);
+    } catch (error) {
+      console.log(error);
+      console.log(error?.message || error?.response?.data);
+      toast.error(error?.message || error?.response?.data);
+      setError(error?.message || error?.response?.data);
+    }
+  };
+
   return (
     <div className="hero bg-base-200 min-h-screen">
-      <div className="hero-content flex-col lg:flex-row-reverse">
-        <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">Login now!</h1>
+      <div className="hero-content flex-col lg:flex-row-reverse space-x-16">
+        <div className="lg:text-left space-y-4 flex flex-col">
+          <h1 className="text-5xl font-bold">
+            {isLoginPage ? "Login now!" : "SignUp Now!"}
+          </h1>
           <p className="py-6">
             Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
             excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
@@ -44,6 +86,30 @@ export const Login = () => {
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
             <fieldset className="fieldset">
+              {!isLoginPage && (
+                <>
+                  <label className="label">FirstName</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="FirstName"
+                    value={state.firstName}
+                    onChange={(e) => {
+                      putFirstName(e.target.value);
+                    }}
+                  />
+                  <label className="label">LastName</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="LastName"
+                    value={state.lastName}
+                    onChange={(e) => {
+                      putLastName(e.target.value);
+                    }}
+                  />
+                </>
+              )}
               <label className="label">Email</label>
               <input
                 type="email"
@@ -65,24 +131,31 @@ export const Login = () => {
                 }}
               />
               <div>
-                <a className="link link-hover">Forgot password?</a>
+                {isLoginPage && (
+                  <a className="link link-hover">Forgot password?</a>
+                )}
               </div>
               <p className="text-red-500 text-center font-bold">{error}</p>
               <button
                 className="btn btn-neutral mt-4"
-                onClick={loginPostRequest}
+                onClick={isLoginPage ? loginPostRequest : handleSignUp}
               >
-                Login
+                {isLoginPage ? "Login" : "SignUp"}
               </button>
-              <button
-                className="btn btn-neutral mt-4"
-                onClick={() => navigate("/signup")}
+              <p
+                className="link link-hover text-center pt-3"
+                onClick={() => {
+                  setIsLoginPage(!isLoginPage);
+                }}
               >
-                Signup Instead!
-              </button>
+                {isLoginPage
+                  ? "New User? SignUp Here →"
+                  : "Existing User? Login Here →"}
+              </p>
             </fieldset>
           </div>
         </div>
+        <Toaster position="top-center" />
       </div>
     </div>
   );

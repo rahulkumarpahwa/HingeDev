@@ -10,10 +10,10 @@ export const Signup = () => {
   const navigate = useNavigate();
 
   const initialState = {
-    firstName: null,
-    lastName: null,
-    email: null,
-    password: null,
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
