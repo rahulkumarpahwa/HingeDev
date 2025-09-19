@@ -19,12 +19,12 @@ const Feed = () => {
       const response = await axios.get(BASE_URL + "/user/feed", {
         withCredentials: true,
       });
-      console.log(response);
+      // console.log(response);
       dispatch(addFeed(response?.data?.data));
       // setFeed(response.data);
     } catch (error) {
       console.log(error.response.data);
-      toast.error(error?.response?.data || error.message);
+      error && toast.error(error?.response?.data || error.message);
     }
   };
 
