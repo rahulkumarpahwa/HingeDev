@@ -19,8 +19,8 @@ export const EditProfile = () => {
   const initialState = {
     firstName: user.firstName,
     lastName: user.lastName,
-    gender: user.gender,
-    age: user.age,
+    gender: user.gender || "",
+    age: user.age || "",
     photoUrl: user.photoUrl,
     skills: user.skills,
     about: user.about,

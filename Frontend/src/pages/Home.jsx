@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 export const Home = () => {
   const navigate = useNavigate();
+  const user = useSelector((store) => store.user);
   return (
     <div
       className="hero min-h-screen"
@@ -14,11 +16,11 @@ export const Home = () => {
         <div className="">
           <h1 className="mb-5 text-5xl font-bold">
             {" "}
-            HingeDev <br />
+            HingeDEV <br />
             "Because developers deserve their own match."
           </h1>
           <p className="mb-5">
-            HingeDev is a full-stack Social Discovery Platform for developers.
+            HingeDEV is a full-stack Social Discovery Platform for developers.
             Built with React.js, Tailwind CSS, DaisyUI, Redux Toolkit, Node.js,
             Express.js, MongoDB, and JWT authentication, it helps developers
             discover, connect, and collaborate with like-minded peers.
@@ -26,11 +28,10 @@ export const Home = () => {
           <button
             className="btn btn-warning"
             onClick={() => {
-              navigate("/login");
+              user ? navigate("/feed") : navigate("/login");
             }}
           >
-            Let's Find Match! <span>
-            </span>
+            Let's Find Match! <span></span>
           </button>
         </div>
       </div>
