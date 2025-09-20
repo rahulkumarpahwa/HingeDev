@@ -1,13 +1,11 @@
 const Marquee = () => {
   return (
-    <div
-      className="relative w-full overflow-hidden h-4 flex items-center"
-    >
+    <div className="relative w-full overflow-hidden h-4 flex items-center">
       <div
-        className="animate-marquee whitespace-nowrap text-[##ec4899] text-md font-bold"
+        className="animate-marquee whitespace-nowrap text-purple-600 text-md font-bold"
         style={{ fontFamily: "Bitcount Ink" }}
       >
-        {Array(6).fill(marqueeText)}
+        {[...Array(6)].map(() => marqueeText).join("    ")}
       </div>
       <style>{`
         @keyframes marquee {
@@ -17,7 +15,7 @@ const Marquee = () => {
         .animate-marquee {
           display: inline-block;
           min-width: 100%;
-          animation: marquee 12s linear infinite;
+          animation: marquee 13s linear infinite;
         }
         @media (max-width: 640px) {
           .animate-marquee {

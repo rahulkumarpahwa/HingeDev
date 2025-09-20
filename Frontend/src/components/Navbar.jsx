@@ -30,7 +30,7 @@ const Navbar = () => {
 
   return (
     <div className="navbar flex flex-col items-center justify-center min-h-0 w-full bg-white shadow-sm shadow-[#fe3770] z-50">
-      <div className="w-full flex flex-col items-center justify-center my-2">
+      <div className="w-full flex flex-col items-center justify-center mb-2">
         <Link
           to="/"
           className="text-4xl font-extrabold text-[#fe3770] flex items-center gap-0.5"
