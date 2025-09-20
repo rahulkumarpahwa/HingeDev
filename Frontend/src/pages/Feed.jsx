@@ -42,7 +42,7 @@ const Feed = () => {
 
   return (
     feed && (
-      <div className="flex justify-center items-center bg-base-200 p-8">
+      <div className="flex justify-center items-center  p-8">
         <div className="stack w-xs stack-start">
           {feed.map((row, index) => {
             return <Card key={index} user={row} />;

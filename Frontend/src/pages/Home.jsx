@@ -15,8 +15,6 @@ export const Home = () => {
       <div className="hero-content text-neutral-content text-center">
         <div className="">
           <h1 className="mb-5 text-5xl font-bold">
-            {" "}
-            HingeDEV <br />
             "Because developers deserve their own match."
           </h1>
           <p className="mb-5">
@@ -26,7 +24,7 @@ export const Home = () => {
             discover, connect, and collaborate with like-minded peers.
           </p>
           <button
-            className="btn btn-warning"
+            className="btn bg-[#fe3770] text-white"
             onClick={() => {
               user ? navigate("/feed") : navigate("/login");
             }}

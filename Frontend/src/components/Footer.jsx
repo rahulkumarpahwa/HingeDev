@@ -1,6 +1,11 @@
+import Marquee from "./Marquee";
+
 export const Footer = () => {
   return (
-    <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
+    <>
+    <Marquee/>
+    <footer className="footer sm:footer-horizontal text-[#fe3770] shadow shadow-[#fe3770] p-10">
+     
       <nav>
         <h6 className="footer-title">Services</h6>
         <a className="link link-hover">Branding</a>
@@ -22,5 +27,6 @@ export const Footer = () => {
         <a className="link link-hover">Cookie policy</a>
       </nav>
     </footer>
+    </>
   );
 };

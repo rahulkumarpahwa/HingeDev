@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { removeUser } from "../utils/userSlice";
 import { Link, useNavigate } from "react-router";
+import Marquee from "./Marquee";
 import { BASE_URL } from "../utils/constants";
 import axios from "axios";
 import { removeFeed } from "../utils/feedSlice";
@@ -28,20 +29,38 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-[#89b0AE] shadow-lg py-3">
-      <div className="flex-1">
-        <div className="w-24 h-24 ml-2">
-          <Link className="text-xl" to="/">
-            <img src="./logo.png" alt="logo" className="w-full" />
-          </Link>
-        </div>
+    <div className="navbar flex flex-col items-center justify-center min-h-0 w-full bg-white shadow-sm shadow-[#fe3770] z-50">
+      <div className="w-full flex flex-col items-center justify-center my-2">
+        <Link
+          to="/"
+          className="text-4xl font-extrabold text-[#fe3770] flex items-center gap-0.5"
+          style={{ fontStyle: "italic" }}
+        >
+          <span className="relative inline-block">
+            H
+            <span className="relative inline-block">
+              <span className="inline-block" style={{ position: "relative" }}>
+                i
+                <span
+                  className="absolute left-1/2 -translate-x-1/3 -top-1.5 text-xs"
+                  style={{ pointerEvents: "none" }}
+                >
+                  &#128151;
+                </span>
+              </span>
+            </span>
+            nge
+          </span>
+          <span
+            className="font-extrabold text-transparent"
+            style={{ WebkitTextStroke: "1px #ec4855" }}
+          >
+            &lt;DEV/&gt;
+          </span>
+        </Link>
       </div>
-      <div className="flex gap-2">
-        {/* <input
-          type="text"
-          placeholder="Search"
-          className="input input-bordered w-24 md:w-auto"
-        /> */}
+      {!user && <Marquee />}
+      <div className="w-full flex justify-end items-center">
         {user && (
           <div className="flex justify-center gap-2 items-center">
             <span>Welcome! {user.firstName}</span>

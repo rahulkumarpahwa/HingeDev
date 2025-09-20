@@ -71,7 +71,7 @@ export const Login = () => {
   };
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
+    <div className="hero min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse space-x-16">
         <div className="lg:text-left space-y-4 flex flex-col">
           <h1 className="text-5xl font-bold">
