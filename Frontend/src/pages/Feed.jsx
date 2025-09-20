@@ -23,8 +23,12 @@ const Feed = () => {
       dispatch(addFeed(response?.data?.data));
       // setFeed(response.data);
     } catch (error) {
-      console.log(error.response.data);
-      error && toast.error(error?.response?.data || error.message);
+      const errorMsg =
+        typeof error?.response?.data === "string"
+          ? error?.response?.data
+          : error?.response?.data?.error || error.message;
+      console.log(errorMsg);
+      toast.error(errorMsg);
     }
   };
 

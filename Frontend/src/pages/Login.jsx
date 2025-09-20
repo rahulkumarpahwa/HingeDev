@@ -83,7 +83,7 @@ export const Login = () => {
             a id nisi.
           </p>
         </div>
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+        <div className="card w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
             <fieldset className="fieldset">
               {!isLoginPage && (

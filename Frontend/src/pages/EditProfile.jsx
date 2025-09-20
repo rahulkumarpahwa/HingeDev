@@ -86,9 +86,9 @@ export const EditProfile = () => {
   const [toastState, setToastState] = useState(false);
 
   return (
-    <div className="flex items-center justify-center flex-col gap-7 p-20">
-      <h1 className="font-bold text-4xl">Update Profile Details</h1>
-      <div className="flex items-center justify-center gap-5">
+    <div className="flex items-center justify-center flex-col gap-7 py-10 px-4">
+      <h1 className="font-bold  sm:text-4xl text-2xl">Update Profile Details</h1>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-5 w-full">
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
             <fieldset className="fieldset">
@@ -194,7 +194,9 @@ export const EditProfile = () => {
             </fieldset>
           </div>
         </div>
-        <Card user={state} />
+        <div className="w-full max-w-sm md:w-auto mt-5 md:mt-0 flex justify-center">
+          <Card user={state} />
+        </div>
       </div>
       {toastState && <DiasyToast data={"Profile Updated SuccessFully!"} />}
     </div>
