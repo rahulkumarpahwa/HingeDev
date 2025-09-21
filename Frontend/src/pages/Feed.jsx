@@ -4,6 +4,7 @@ import { BASE_URL } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 import { addFeed } from "../utils/feedSlice";
 import { Card } from "../components/Card";
+import SwipeableCard from "../components/SwipeableCard";
 import toast, { Toaster } from "react-hot-toast";
 
 const Feed = () => {
@@ -37,7 +38,9 @@ const Feed = () => {
     // eslint-disable-next-line
   }, []);
 
-  if (feed && feed.length == 0)
+  if (!feed) return;
+
+  if (feed.length == 0)
     return (
       <div className="text-center text-4xl font-bold min-h-[40rem] flex justify-center items-center">
         No Feed!
@@ -48,9 +51,9 @@ const Feed = () => {
     feed && (
       <div className="flex justify-center items-center  p-8">
         <div className="stack w-xs stack-start">
-          {feed.map((row, index) => {
-            return <Card key={index} user={row} />;
-          })}
+          {feed.map((row) => (
+            <Card user={row} key={row._id} />
+          ))}
         </div>
         <Toaster />
       </div>

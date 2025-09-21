@@ -15,12 +15,10 @@ export const Profile = () => {
           </h1>
           <div className="flex flex-col md:flex-row items-center justify-between md:space-x-12 gap-8 w-full">
             <div className="flex flex-col md:flex-row items-center justify-center md:space-x-8 gap-4 w-full">
-              <div className="w-32 h-32 md:w-[150px] md:h-[150px] mx-auto">
-                <img
-                  src={photoUrl}
-                  alt={firstName}
-                  className="w-full h-full rounded-full object-cover"
-                />
+              <div className="avatar">
+                <div className="ring-primary ring-offset-base-100 w-32 rounded-full ring-2 ring-offset-2">
+                  <img src={photoUrl} />
+                </div>
               </div>
               <div className="flex justify-center flex-col items-center md:items-start w-full">
                 <p className="font-bold text-lg md:text-xl text-center md:text-left">

@@ -194,7 +194,7 @@ export const EditProfile = () => {
             </fieldset>
           </div>
         </div>
-        <div className="w-full max-w-sm md:w-auto mt-5 md:mt-0 flex justify-center">
+        <div className="w-full max-w-xs md:w-auto mt-5 md:mt-0 flex justify-center">
           <Card user={state} />
         </div>
       </div>
