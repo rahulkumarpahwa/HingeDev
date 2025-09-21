@@ -4,7 +4,6 @@ import { BASE_URL } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 import { addFeed } from "../utils/feedSlice";
 import { Card } from "../components/Card";
-import SwipeableCard from "../components/SwipeableCard";
 import toast, { Toaster } from "react-hot-toast";
 
 const Feed = () => {

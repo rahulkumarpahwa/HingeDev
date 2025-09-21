@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { removeFeed } from "../utils/feedSlice";
 import toast, { Toaster } from "react-hot-toast";
 
-export const Card = ({ user, triggerSwipe }) => {
+export const Card = ({ user }) => {
   const { _id, firstName, lastName, skills, photoUrl, about, age, gender } =
     user;
   const dispatch = useDispatch();
@@ -15,19 +15,16 @@ export const Card = ({ user, triggerSwipe }) => {
     try {
       const response = await axios.post(
         BASE_URL + "/request/send/" + status + "/" + _toWhomWeAreInterested,
-        {}, // always pass the empty body when nothing to send.
+        {},
         { withCredentials: true }
       );
       console.log(response);
       if (response && status == "interested") {
         toast("❤️ Interested!");
-        if (triggerSwipe) triggerSwipe("right");
       } else {
         toast("😭 Ignored!");
-        if (triggerSwipe) triggerSwipe("left");
       }
       dispatch(removeFeed(_toWhomWeAreInterested));
-      // we are passing the user which will be on the feed and we have to remove it, when clicked interested or ignored.
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data || error.message);
@@ -52,7 +49,7 @@ export const Card = ({ user, triggerSwipe }) => {
             {age} {gender == "male" ? "M" : gender == "female" ? "F" : "O"}
           </div>
         </p>
-        <p className="md:text-base text-justify">{about}</p>
+        <p className="md:text-base text-justify truncate hover:overflow-visible hover:text-wrap ">{about}</p>
         <div className="flex flex-wrap gap-2 justify-center items-center mb-2">
           {skills &&
             skills.map((skill, idx) => (
@@ -65,17 +62,18 @@ export const Card = ({ user, triggerSwipe }) => {
             ))}
         </div>
         <div className="card-actions justify-center text-2xl md:text-3xl gap-4 mt-2">
-          <button
-            className="text-green-600 btn btn-primary px-3 py-2 min-w-[120px]"
-            onClick={() => handleRequestSend("interested", _id)}
-          >
-            <FaHeart size={20} />
-          </button>
+          
           <button
             className="text-red-500 btn btn-secondary px-3 py-2 min-w-[120px]"
             onClick={() => handleRequestSend("ignored", _id)}
           >
             <FaXmark size={20} />
+          </button>
+          <button
+            className="text-green-600 btn btn-primary px-3 py-2 min-w-[120px]"
+            onClick={() => handleRequestSend("interested", _id)}
+          >
+            <FaHeart size={20} />
           </button>
         </div>
       </div>
