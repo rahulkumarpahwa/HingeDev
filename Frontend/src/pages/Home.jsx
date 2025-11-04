@@ -26,10 +26,10 @@ export const Home = () => {
           <button
             className="btn bg-[#fe3770] text-white"
             onClick={() => {
-              user ? navigate("/feed") : navigate("/login");
+              user ? navigate("/feed") : navigate("/auth");
             }}
           >
-            Let's Find Match! <span></span>
+            Let's Find Match!
           </button>
         </div>
       </div>

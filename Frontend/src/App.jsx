@@ -1,8 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { Login } from "./pages/Login.jsx";
+import { Auth } from "./pages/Auth.jsx";
 import { Body } from "./pages/Body.jsx";
-import { Signup } from "./pages/Signup.jsx";
 import Feed from "./pages/Feed.jsx";
 
 import { Provider } from "react-redux";
@@ -61,7 +60,6 @@ function App() {
                 }
               />
 
-
               <Route
                 path="/requests"
                 element={
@@ -70,8 +68,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+              <Route path="/auth" element={<Auth />} />
             </Route>
           </Routes>
         </BrowserRouter>

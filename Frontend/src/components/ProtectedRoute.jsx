@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children }) => {
       fetchUser(dispatch);
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        navigate("/login");
+        navigate("/auth");
       }
       error.response != null
         ? console.log(error.response.data)
@@ -33,7 +33,7 @@ const ProtectedRoute = ({ children }) => {
   }, []);
 
   if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/auth" replace />;
   return children;
 };
 

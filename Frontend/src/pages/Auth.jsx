@@ -8,7 +8,7 @@ import { BASE_URL } from "../utils/constants";
 import { reducer } from "../utils/signupProfileReducer";
 import toast, { Toaster } from "react-hot-toast";
 
-export const Login = () => {
+export const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
