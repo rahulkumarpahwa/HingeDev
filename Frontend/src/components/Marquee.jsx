@@ -2,7 +2,7 @@ const Marquee = () => {
   return (
     <div className="relative w-full overflow-hidden h-4 flex items-center">
       <div
-        className="animate-marquee whitespace-nowrap text-purple-600 text-md font-bold"
+        className="animate-marquee whitespace-nowrap text-[#f290ac] text-md font-extrabold"
         style={{ fontFamily: "Bitcount Ink" }}
       >
         {[...Array(6)].map(() => marqueeText).join("    ")}

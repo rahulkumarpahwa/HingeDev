@@ -1,18 +1,23 @@
-import { useSelector } from "react-redux";
-import Marquee from "./Marquee";
+import { Link } from "react-router";
 
 export const Footer = () => {
-  const user = useSelector((store) => store.user);
   return (
     <>
-      {!user && <Marquee />}
-      <footer className="footer sm:footer-horizontal text-[#fe3770] shadow shadow-[#fe3770] p-10">
+      <footer className="footer sm:footer-horizontal text-white bg-[#ff1e65] border-2 border-dashed p-10">
         <nav>
-          <h6 className="footer-title">Services</h6>
-          <a className="link link-hover">Branding</a>
-          <a className="link link-hover">Design</a>
-          <a className="link link-hover">Marketing</a>
-          <a className="link link-hover">Advertisement</a>
+          <h6 className="footer-title">Pages</h6>
+          <Link to="/" className="link link-hover">
+            Home
+          </Link>
+          <Link to="/auth" className="link link-hover">
+            Login
+          </Link>
+          <Link to="/auth" className="link link-hover">
+            Signup
+          </Link>
+          <Link to="/profile" className="link link-hover">
+            Profile
+          </Link>
         </nav>
         <nav>
           <h6 className="footer-title">Company</h6>

@@ -4,12 +4,12 @@ import Navabar from "../components/Navbar.jsx";
 
 export const Body = () => {
   return (
-    <>
+    <div className="bg-white">
       <Navabar />
       {/* this is place where any children route of the body will enter here ie. outlet */}
       <Outlet />
       <Footer />
-    </>
+    </div>
   );
 };
 // now we will create the feature that as we login we will move to the feed page  and as we will logout we will move to the login page.

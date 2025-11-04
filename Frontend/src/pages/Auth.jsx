@@ -72,36 +72,38 @@ export const Auth = () => {
 
   return (
     <div className="hero min-h-screen">
-      <div className="hero-content flex-col lg:flex-row-reverse space-x-16">
-        <div className="lg:text-left space-y-4 flex flex-col">
-          <h1 className="text-5xl font-bold">
-            {isLoginPage ? "Login now!" : "SignUp Now!"}
+      <div className="hero-content flex-col lg:flex-row-reverse gap-8 lg:space-x-16 px-4 lg:px-0">
+        <div className="text-center lg:text-left space-y-4 flex flex-col w-full lg:w-auto">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
+            {isLoginPage ? "Login 🔏" : "Signup 🔑"}
           </h1>
-          <p className="py-6">
-            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
-            a id nisi.
+          <p className="py-4 lg:py-6 font-semibold text-sm sm:text-base lg:text-xl">
+            {isLoginPage
+              ? "Login here to join back to the astonishing world of the Devs and connect with them."
+              : "Signup here to be part of this new Social Discovery platform for the devs."}
           </p>
         </div>
-        <div className="card w-full max-w-sm shrink-0 shadow-2xl">
-          <div className="card-body">
+        <div className="card w-full max-w-sm shrink-0 shadow-2xl lg:w-96">
+          <div className="card-body p-4 sm:p-6">
             <fieldset className="fieldset">
               {!isLoginPage && (
                 <>
-                  <label className="label">FirstName</label>
+                  <label className="label text-sm sm:text-base">
+                    FirstName
+                  </label>
                   <input
                     type="text"
-                    className="input"
+                    className="input input-sm sm:input"
                     placeholder="FirstName"
                     value={state.firstName}
                     onChange={(e) => {
                       putFirstName(e.target.value);
                     }}
                   />
-                  <label className="label">LastName</label>
+                  <label className="label text-sm sm:text-base">LastName</label>
                   <input
                     type="text"
-                    className="input"
+                    className="input input-sm sm:input"
                     placeholder="LastName"
                     value={state.lastName}
                     onChange={(e) => {
@@ -110,20 +112,20 @@ export const Auth = () => {
                   />
                 </>
               )}
-              <label className="label">Email</label>
+              <label className="label text-sm sm:text-base">Email</label>
               <input
                 type="email"
-                className="input"
+                className="input input-sm sm:input"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                 }}
               />
-              <label className="label">Password</label>
+              <label className="label text-sm sm:text-base">Password</label>
               <input
                 type="password"
-                className="input"
+                className="input input-sm sm:input"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => {
@@ -132,18 +134,22 @@ export const Auth = () => {
               />
               <div>
                 {isLoginPage && (
-                  <a className="link link-hover">Forgot password?</a>
+                  <a className="link link-hover text-xs sm:text-sm">
+                    Forgot password?
+                  </a>
                 )}
               </div>
-              <p className="text-red-500 text-center font-bold">{error}</p>
+              <p className="text-red-500 text-center font-bold text-xs sm:text-sm">
+                {error}
+              </p>
               <button
-                className="btn btn-neutral mt-4"
+                className="btn btn-neutral mt-4 text-sm sm:text-base hover:bg-[#fe3770] hover:border-[#fe3770] "
                 onClick={isLoginPage ? loginPostRequest : handleSignUp}
               >
                 {isLoginPage ? "Login" : "SignUp"}
               </button>
               <p
-                className="link link-hover text-center pt-3"
+                className="link link-hover text-center pt-3 text-xs sm:text-sm"
                 onClick={() => {
                   setIsLoginPage(!isLoginPage);
                 }}
