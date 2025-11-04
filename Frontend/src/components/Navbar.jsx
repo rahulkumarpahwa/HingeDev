@@ -22,7 +22,7 @@ const Navbar = () => {
       dispatch(removeUser());
       dispatch(removeFeed()); // deleting the feed is important, otherwise the next user on login will get the same feed.
       console.log(response);
-      return navigate("/login");
+      return navigate("/auth");
     } catch (error) {
       console.log(error?.response?.data || "Something went wrong!");
     }
