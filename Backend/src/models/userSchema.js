@@ -107,19 +107,24 @@ const userSchema = new mongoose.Schema(
     city: String,
     state: String,
     country: String,
-    experience: {
+    experienceLevel: {
       type: String,
       required: true,
       enum: {
-        values: ["beginner", "Intermediate", "Experienced"],
-        message: "{VALUE} is not a valid experience type ",
+        values: ["beginner", "intermediate", "advanced", "expert"],
+        message: "{VALUE} is not a valid experience level type ",
       },
       validate(value) {
-        // refer to the note below.
-        if (!["beginner", "Intermediate", "Experienced"].includes(value)) {
-          throw new Error("experience is not valid!");
+        if (
+          !["beginner", "intermediate", "advanced", "expert"].includes(value)
+        ) {
+          throw new Error(this.value, " is not a valid experience level type.");
         }
       },
+    },
+    bioEmbedding: {
+      type: [Number], // Array of numbers for embedding vector
+      default: null,
     },
   },
   { timestamps: true }, // adding the timestamps
