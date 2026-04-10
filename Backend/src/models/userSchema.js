@@ -54,10 +54,14 @@ const userSchema = new mongoose.Schema(
     },
     skills: {
       type: [String], // array of Strings
+      maxLength: 20,
+      required: true,
     },
     about: {
       type: String,
       default: "This is a about section of the user", // default value for the about.
+      maxlength: [500, "about cannot exceed 500 characters"], // Character limit
+      minlength: [3, "about must be at least 30 characters"],
     },
     photoUrl: {
       type: String,
@@ -76,9 +80,53 @@ const userSchema = new mongoose.Schema(
     //   // type: Schema.Types.ObjectId,
     //   // ref:
     // },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"], // GeoJSON type must be 'Point'
+        required: true,
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+        validate: {
+          validator: function (value) {
+            return (
+              value.length === 2 &&
+              value[0] >= -180 &&
+              value[0] <= 180 && // longitude range
+              value[1] >= -90 &&
+              value[1] <= 90
+            ); // latitude range
+          },
+          message:
+            "Coordinates must be [longitude, latitude] within valid ranges.",
+        },
+      },
+    },
+    city: String,
+    state: String,
+    country: String,
+    experience: {
+      type: String,
+      required: true,
+      enum: {
+        values: ["beginner", "Intermediate", "Experienced"],
+        message: "{VALUE} is not a valid experience type ",
+      },
+      validate(value) {
+        // refer to the note below.
+        if (!["beginner", "Intermediate", "Experienced"].includes(value)) {
+          throw new Error("experience is not valid!");
+        }
+      },
+    },
   },
-  { timestamps: true } // adding the timestamps
+  { timestamps: true }, // adding the timestamps
 );
+
+// Create a 2dsphere index for geospatial queries
+userSchema.index({ location: "2dsphere" });
 
 // don't use the arrow methods.
 userSchema.methods.getJWT = async function () {
