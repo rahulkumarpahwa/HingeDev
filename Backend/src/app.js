@@ -3,17 +3,19 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const { connectDB } = require("./config/database.js");
 const cors = require("cors");
-const port = 8000;
+const {env} = require("../envParser.js")
 
 connectDB()
   .then(() => {
     console.log("database connected successfully!");
-    app.listen(port, () => {
-      console.log(`server is successfully listening at port ${port}`);
+    app.listen(env.PORT, () => {
+      console.log(`server is successfully listening at port ${env.PORT}`);
+      console.log(`http://localhost:${env.PORT}`);
     });
   })
   .catch((err) => {
     console.log(err.message);
+    process.exit(1)
   });
 
 const corsOptions = {

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+const { env } = require("../../envParser");
 
 // refer to the documentation of mongoose.
 // we will create another folder config and it contains the file database.js and also we can handle other things their as well.
 // we will use the library "mongoose" call to connect to database
 
-// steps : 
+// steps :
 // 1. write mongoose.connect(process.env.MONGODB_URI);
 // 2. but write it in async-await fxn as it returns the promise and also it tells connection is established successfully or not. so handle according to it.
 // 3. handle the promise using then() and catch()
@@ -13,7 +13,7 @@ require("dotenv").config();
 // 5. so we will export the connectDB method from here and after the  database will be coonected then we will start the server.
 
 const connectDB = async () => {
-  await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(env.MONGODB_URI);
 };
 
 module.exports = { connectDB };
@@ -26,5 +26,3 @@ module.exports = { connectDB };
 //   .catch((err) => {
 //     console.log(err.message);
 //   });
-
- 
