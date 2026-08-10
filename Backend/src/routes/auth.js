@@ -5,10 +5,12 @@ const validator = require("validator");
 const { validateSignUpData } = require("../utils/validation.js");
 const { userAuth } = require("../middlewares/auth.js");
 const ConnectionRequestModel = require("../models/connectionRequest.js");
+const { getUserIP } = require("../middlewares/ipConfig.js");
+const { validateTurnstile } = require("../middlewares/turnstile.js");
 
 const authRouter = express.Router();
 
-authRouter.post("/signup", async (req, res) => {
+authRouter.post("/signup", getUserIP, validateTurnstile, async (req, res) => {
   try {
     validateSignUpData(req); // validating the data before saving.
     const { firstName, lastName, email, password } = req.body;
@@ -41,7 +43,7 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/login", getUserIP, validateTurnstile, async (req, res) => {
   try {
     const { email, password } = req.body;
     // validating the email:

@@ -13,12 +13,37 @@ const validateSignUpData = (req) => {
 };
 
 const validateProfileEditData = (data) => {
-  const ALLOWED_EDIT_FIELDS = ["firstName","lastName", "gender", "about", "photoUrl", "skills", "age"];
+  const ALLOWED_EDIT_FIELDS = [
+    "firstName",
+    "lastName",
+    "gender",
+    "about",
+    "photoUrl",
+    "skills",
+    "age",
+  ];
   const isEditAllowed = Object.keys(data).every(
-    (key) => ALLOWED_EDIT_FIELDS.includes(key) // key represent the each key.
+    (key) => ALLOWED_EDIT_FIELDS.includes(key), // key represent the each key.
   );
   return isEditAllowed;
 };
 
+const validateUserIP = (data) => {
+  const schema = Joi.object({
+    ip: Joi.string()
+      .ip({
+        version: ["ipv4", "ipv6"],
+      })
+      .required(),
+  });
 
-module.exports = { validateSignUpData, validateProfileEditData };
+  const { error, value } = schema.validate(data);
+
+  if (error) {
+    throw new Error("IP Validation Error: ", e.message);
+  }
+
+  return value;
+};
+
+module.exports = { validateSignUpData, validateProfileEditData, validateUserIP };
