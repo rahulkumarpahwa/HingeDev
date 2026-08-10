@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/userSchema");
-const secret = "jhfsdfhshfsfhhfjahfkasfhk"; // any random secret for the jwt. can put as env as well.
+const { env } = require("../../envParser.js"); // any random secret for the jwt. can put as env as well.
 
 // const adminAuth = (req, res, next) => {
 //   const token = getToken();
@@ -24,7 +24,7 @@ const userAuth = async (req, res, next) => {
       return res.status(401).json("Please Login!");
     }
 
-    const decodedToken = await jwt.verify(token, secret);
+    const decodedToken = await jwt.verify(token, env.JWT_SECRET);
     const { _id } = decodedToken;
     const findUser = await User.findOne({ _id: _id });
     if (!findUser) {
