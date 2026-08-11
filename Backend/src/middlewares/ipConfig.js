@@ -1,18 +1,13 @@
-const { validateUserIP } = require("../utils/validation");
-
 const getUserIP = async (req, res, next) => {
-  const ip =
+  const ipRaw =
     req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+  const ip = ipRaw.includes(":") ? ipRaw.replace(/^::ffff:/, "") : ipRaw;
 
   console.log("user ip", ip);
-
-  const validIP = validateUserIP(ip);
-  if (validIP) {
-    req.userIP = validIP;
-    next();
-  } else {
-    next(new Error("Invalid IP"));
+  if (ip) {
+    req.userIP = ip;
   }
+  next();
 };
 
 module.exports = { getUserIP };

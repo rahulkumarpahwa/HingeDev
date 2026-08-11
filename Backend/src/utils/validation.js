@@ -28,22 +28,7 @@ const validateProfileEditData = (data) => {
   return isEditAllowed;
 };
 
-const validateUserIP = (data) => {
-  const schema = Joi.object({
-    ip: Joi.string()
-      .ip({
-        version: ["ipv4", "ipv6"],
-      })
-      .required(),
-  });
-
-  const { error, value } = schema.validate(data);
-
-  if (error) {
-    throw new Error("IP Validation Error: ", e.message);
-  }
-
-  return value;
+module.exports = {
+  validateSignUpData,
+  validateProfileEditData,
 };
-
-module.exports = { validateSignUpData, validateProfileEditData, validateUserIP };

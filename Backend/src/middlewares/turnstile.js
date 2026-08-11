@@ -17,8 +17,11 @@ const validateTurnstile = async (req, res, next) => {
       }),
     });
 
-    console.log(validation);
-    next();
+    if (validation.ok) {
+      next();
+    } else {
+      throw new Error("Invalid Credentials");
+    }
   } catch (e) {
     console.log("TurnStile Error: ", e.message);
     throw new Error("UnauthorizedError");

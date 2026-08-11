@@ -3,16 +3,18 @@ import axios from "axios";
 import { addUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { BASE_URL } from "../utils/constants";
+import { BASE_URL, TURNSTILE_SITE_KEY } from "../utils/constants";
 
 import { reducer } from "../utils/signupProfileReducer";
 import toast, { Toaster } from "react-hot-toast";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoginPage, setIsLoginPage] = useState(true);
+  const [token, setToken] = useState(null);
   const dispatchStore = useDispatch();
   const navigate = useNavigate();
 
@@ -33,17 +35,20 @@ export const Auth = () => {
     try {
       const response = await axios.post(
         `${BASE_URL}/login`,
-        { email, password },
-        { withCredentials: true } // Add this if backend uses cookies
+        { email, password, turnstileToken: token },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }, // Add this if backend uses cookies
       );
       console.log(response.data.user);
       dispatchStore(addUser(response.data.user));
       return navigate("/feed"); // navigating to the home route.
     } catch (error) {
-      error.response != null
-        ? setError(error.response.data)
-        : setError(error.message + "!");
-      console.log(error);
+      error.response != null && setError(error.message + "!");
+      console.log(error.message);
     }
   };
 
@@ -54,7 +59,10 @@ export const Auth = () => {
         { ...state, email, password },
         {
           withCredentials: true,
-        }
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
       );
       console.log(response);
       dispatchStore(addUser(response.data.data));
@@ -139,12 +147,35 @@ export const Auth = () => {
                   </a>
                 )}
               </div>
+
+              <div className="flex items-center justify-center gap-3">
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  options={{
+                    theme: "light",
+                    size: "normal",
+                  }}
+                  onSuccess={(token) => {
+                    setToken(token);
+                  }}
+                  onError={(e) => {
+                    setToken(null);
+                    setError(e);
+                  }}
+                  onExpire={() => {
+                    setToken(null);
+                    setError("Token Expired! Refresh Page!");
+                  }}
+                />
+              </div>
+
               <p className="text-red-500 text-center font-bold text-xs sm:text-sm">
                 {error}
               </p>
               <button
-                className="btn btn-neutral mt-4 text-sm sm:text-base hover:bg-[#fe3770] hover:border-[#fe3770] "
+                className="btn btn-neutral mt-4 text-sm sm:text-base hover:bg-[#fe3770] hover:border-[#fe3770] disabled:cursor-not-allowed"
                 onClick={isLoginPage ? loginPostRequest : handleSignUp}
+                disabled={!token}
               >
                 {isLoginPage ? "Login" : "SignUp"}
               </button>
