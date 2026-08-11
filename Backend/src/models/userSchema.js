@@ -2,15 +2,16 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const secret = "jhfsdfhshfsfhhfjahfkasfhk"; // any random secret for the jwt. can put as env as well.
+const { env } = require("../../envParser");
+const { responseError, errorConstants } = require("../utils/error");
 
 const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
       required: true,
-      minLength: 4, // characters can't be less than 4.
-      maxLength: 50, // max length not more than 50.
+      minLength: 4,
+      maxLength: 50,
     },
     lastName: {
       type: String,
@@ -19,7 +20,7 @@ const userSchema = new mongoose.Schema(
     age: {
       type: Number,
       required: false,
-      min: 18, //min value is 18
+      min: 18,
     },
     email: {
       type: String,
@@ -34,6 +35,11 @@ const userSchema = new mongoose.Schema(
           throw new Error("Invalid email Address " + value);
         }
       },
+    },
+    showGender: {
+      type: Boolean,
+      default: false,
+      required: true,
     },
     gender: {
       type: String,
@@ -70,7 +76,11 @@ const userSchema = new mongoose.Schema(
       validate(value) {
         // validating the photoUrl
         if (!validator.isURL(value)) {
-          throw new Error("Invalid Photo Url" + value);
+          responseError(
+            400,
+            errorConstants.ValidationError,
+            "Invalid Photo Url",
+          );
         }
       },
     },
@@ -136,9 +146,13 @@ userSchema.index({ location: "2dsphere" });
 // don't use the arrow methods.
 userSchema.methods.getJWT = async function () {
   const user = this; // as the every instace (newUser) is instace of User model so 'this' refers to that instance.
-  const token = await jwt.sign({ _id: user._id }, secret, {
-    expiresIn: 60 * 60 * 2,
-  });
+  const token = await jwt.sign(
+    { _id: user._id, email: user.email },
+    env.JWT_SECRET,
+    {
+      expiresIn: 60 * 60 * 2,
+    },
+  );
   return token;
 };
 

@@ -25,8 +25,8 @@ const userAuth = async (req, res, next) => {
     }
 
     const decodedToken = await jwt.verify(token, env.JWT_SECRET);
-    const { _id } = decodedToken;
-    const findUser = await User.findOne({ _id: _id });
+    const { _id, email } = decodedToken;
+    const findUser = await User.findOne({ _id: _id, email: email });
     if (!findUser) {
       throw new Error("Invalid User! Does not Exists!");
     }

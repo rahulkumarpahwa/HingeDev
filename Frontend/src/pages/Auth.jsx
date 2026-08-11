@@ -1,4 +1,4 @@
-import { useState, useReducer } from "react";
+import { useState, useReducer, useRef } from "react";
 import axios from "axios";
 import { addUser } from "../utils/userSlice";
 import { useDispatch } from "react-redux";
@@ -15,6 +15,7 @@ export const Auth = () => {
   const [error, setError] = useState("");
   const [isLoginPage, setIsLoginPage] = useState(true);
   const [token, setToken] = useState(null);
+  const turnstileRef = useRef(null);
   const dispatchStore = useDispatch();
   const navigate = useNavigate();
 
@@ -33,6 +34,8 @@ export const Auth = () => {
 
   const loginPostRequest = async () => {
     try {
+      turnstileRef.current?.reset();
+
       const response = await axios.post(
         `${BASE_URL}/login`,
         { email, password, turnstileToken: token },
@@ -54,6 +57,8 @@ export const Auth = () => {
 
   const handleSignUp = async () => {
     try {
+      turnstileRef.current?.reset();
+
       const response = await axios.post(
         BASE_URL + "/signup",
         { ...state, email, password },
@@ -150,10 +155,11 @@ export const Auth = () => {
 
               <div className="flex items-center justify-center gap-3">
                 <Turnstile
+                  ref={turnstileRef}
                   siteKey={TURNSTILE_SITE_KEY}
                   options={{
                     theme: "light",
-                    size: "normal",
+                    size: "flexible",
                   }}
                   onSuccess={(token) => {
                     setToken(token);
@@ -164,7 +170,7 @@ export const Auth = () => {
                   }}
                   onExpire={() => {
                     setToken(null);
-                    setError("Token Expired! Refresh Page!");
+                    setError("Refresh Page!");
                   }}
                 />
               </div>

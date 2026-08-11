@@ -6,6 +6,9 @@
   "author": "Rahul K umar",
   "type": "commonjs",
   "main": "index.js",
+  "engines": {
+    "node": ">=22.23.2"
+  },
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
