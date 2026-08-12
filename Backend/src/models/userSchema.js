@@ -12,129 +12,223 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 4,
       maxLength: 50,
+      trim: true,
     },
     lastName: {
       type: String,
       required: true,
-    },
-    age: {
-      type: Number,
-      required: false,
-      min: 18,
+      minLength: 4,
+      maxLength: 50,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true, // makes the email unique and can't add the duplicate email.
-      // unique field does not need to create the index as the mongoDB creates the index by itself for such properties.
-      lowercase: true, // when stored converted to the lowercase, from any case entered by the user.
-      trim: true, //this will remove the extra front and back spaces.
-      validate(value) {
-        // validating email using the validator package.
-        if (!validator.isEmail(value)) {
-          throw new Error("Invalid email Address " + value);
-        }
+      unique: true, // unique field does not need to create the index as the mongoDB creates the index by itself for such properties.
+      lowercase: true,
+      trim: true,
+      validate: {
+        validator: validator.isEmail,
+        message: "Invalid Email Address",
       },
     },
-    showGender: {
+    isEmailVerified: {
       type: Boolean,
       default: false,
-      required: true,
-    },
-    gender: {
-      type: String,
-      enum: {
-        values: ["male", "female", "others"],
-        message: "{VALUE} is not a valid gender type ",
-      },
-      validate(value) {
-        // refer to the note below.
-        if (!["male", "female", "others"].includes(value)) {
-          throw new Error("Gender is not valid");
-        }
-      },
     },
     password: {
       type: String,
       required: true,
+      minLength: 8,
     },
-    skills: {
-      type: [String], // array of Strings
-      maxLength: 20,
+
+    accountStatus: {
+      type: String,
+      enum: ["active", "inactive", "suspended", "banned", "deleted"],
+      default: "active",
+    },
+
+    dateOfBirth: {
+      type: Date,
       required: true,
     },
-    about: {
+    gender: {
       type: String,
-      default: "This is a about section of the user", // default value for the about.
-      maxlength: [500, "about cannot exceed 500 characters"], // Character limit
-      minlength: [3, "about must be at least 30 characters"],
-    },
-    photoUrl: {
-      type: String,
-      default:
-        "https://static.vecteezy.com/system/resources/previews/026/434/417/non_2x/default-avatar-profile-icon-of-social-media-user-photo-vector.jpg", // default value of the photoUrl.
+      enum: [
+        "Woman",
+        "Man",
+        "Non-binary",
+        "Trans Woman",
+        "Trans Man",
+        "Genderqueer",
+        "Agender",
+        "Genderfluid",
+        "Prefer not to say",
+        "Other",
+      ],
       validate(value) {
-        // validating the photoUrl
-        if (!validator.isURL(value)) {
+        if (
+          ![
+            "male",
+            "female",
+            "non_binary",
+            "other",
+            "prefer_not_to_say",
+          ].includes(value)
+        ) {
           responseError(
             400,
             errorConstants.ValidationError,
-            "Invalid Photo Url",
+            "invalid gender value",
           );
         }
       },
     },
-    // It is bad idea. why ? because their are so edge cased like the storing the userId will nt make the sense. as the some requests may get aaccepted. some may get hanged in between and some are reqjected and so on. so that's why it is difficult to handled here.
-    // Also, the schema defines the something. like userSchema defines the user and similarly we will create a new schema which will define the connection.
-    // connections: {
-    //   // type: Schema.Types.ObjectId,
-    //   // ref:
-    // },
+    photoUrl: {
+      type: String,
+      default:
+        "https://static.vecteezy.com/system/resources/previews/026/434/417/non_2x/default-avatar-profile-icon-of-social-media-user-photo-vector.jpg",
+      validate: {
+        validator: validator.isURL,
+        message: "Invalid photo URL",
+      },
+    },
+    bio: {
+      type: String,
+      maxlength: 500,
+    },
+
+    developerRole: {
+      type: String,
+      enum: [
+        "frontend_developer",
+        "backend_developer",
+        "fullstack_developer",
+        "mobile_developer",
+        "devops_engineer",
+        "data_engineer",
+        "data_scientist",
+        "ml_engineer",
+        "ai_engineer",
+        "security_engineer",
+        "qa_engineer",
+        "game_developer",
+        "embedded_developer",
+        "software_architect",
+        "product_engineer",
+        "student",
+        "other",
+      ],
+      required: true,
+    },
+
+    experienceLevel: {
+      type: String,
+      enum: ["beginner", "intermediate", "advanced", "expert"],
+      required: true,
+    },
+
+    skills: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: (value) => value.length <= 20,
+        message: "Maximum 20 skills allowed",
+      },
+    },
+
+    interests: {
+      type: [String],
+      default: [],
+    },
+
     location: {
       type: {
         type: String,
-        enum: ["Point"], // GeoJSON type must be 'Point'
+        enum: ["Point"],
         required: true,
       },
+
       coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number],
         required: true,
+
         validate: {
-          validator: function (value) {
-            return (
-              value.length === 2 &&
-              value[0] >= -180 &&
-              value[0] <= 180 && // longitude range
-              value[1] >= -90 &&
-              value[1] <= 90
-            ); // latitude range
-          },
-          message:
-            "Coordinates must be [longitude, latitude] within valid ranges.",
+          validator: (value) =>
+            value.length === 2 &&
+            value[0] >= -180 &&
+            value[0] <= 180 &&
+            value[1] >= -90 &&
+            value[1] <= 90,
+
+          message: "Coordinates must be [longitude, latitude]",
         },
       },
     },
+
     city: String,
     state: String,
     country: String,
-    experienceLevel: {
+    timezone: {
       type: String,
-      required: true,
-      enum: {
-        values: ["beginner", "intermediate", "advanced", "expert"],
-        message: "{VALUE} is not a valid experience level type ",
-      },
-      validate(value) {
-        if (
-          !["beginner", "intermediate", "advanced", "expert"].includes(value)
-        ) {
-          throw new Error(this.value, " is not a valid experience level type.");
-        }
+      default: "UTC",
+    },
+
+    github: {
+      username: String,
+      profileUrl: String,
+      validate: {
+        validator: (value) => !value || validator.isURL(value),
+        message: "invalid GitHub url",
       },
     },
+
+    linkedin: {
+      profileUrl: String,
+      validate: {
+        validator: (value) => !value || validator.isURL(value),
+        message: "invalid Linkedin url",
+      },
+    },
+
+    portfolioUrl: {
+      type: String,
+      validate: {
+        validator: (value) => !value || validator.isURL(value),
+        message: "Invalid portfolio URL",
+      },
+    },
+
     bioEmbedding: {
       type: [Number], // Array of numbers for embedding vector
       default: null,
+    },
+
+    privacy: {
+      showAge: {
+        type: Boolean,
+        default: true,
+      },
+
+      showGender: {
+        type: Boolean,
+        default: false,
+      },
+
+      showLocation: {
+        type: Boolean,
+        default: true,
+      },
+
+      showGithub: {
+        type: Boolean,
+        default: true,
+      },
+
+      showPortfolio: {
+        type: Boolean,
+        default: true,
+      },
     },
   },
   { timestamps: true }, // adding the timestamps
@@ -165,3 +259,12 @@ userSchema.methods.getPasswordValid = async function (passwordbyuser) {
 
 const User = mongoose.model("User", userSchema);
 module.exports = { User };
+
+/*
+ *  It is bad idea. why ? because their are so edge cased like the storing the userId will nt make the sense. as the some requests may get aaccepted. some may get hanged in between and some are reqjected and so on. so that's why it is difficult to handled here.
+    Also, the schema defines the something. like userSchema defines the user and similarly we will create a new schema which will define the connection.
+     connections: {
+    type: Schema.Types.ObjectId,
+      ref:
+    },
+ */
