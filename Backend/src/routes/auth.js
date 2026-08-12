@@ -4,7 +4,7 @@ const { User } = require("../models/userSchema.js");
 const validator = require("validator");
 const { validateSignUpData } = require("../utils/validation.js");
 const { userAuth } = require("../middlewares/auth.js");
-const ConnectionRequestModel = require("../models/connectionRequest.js");
+const ConnectionRequestModel = require("../models/connectionRequestSchema.js");
 const { getUserIP } = require("../middlewares/ipConfig.js");
 const { validateTurnstile } = require("../middlewares/turnstile.js");
 

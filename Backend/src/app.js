@@ -7,6 +7,7 @@ const { env } = require("../envParser.js");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const { errorHandler } = require("./middlewares/errorHandler.js");
+const { rateLimit } = require("express-rate-limit");
 
 const dns = require("node:dns/promises");
 dns.setServers(["1.1.1.1"]);
@@ -38,6 +39,29 @@ app.use(cors(corsOptions)); // cors middlewares.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // parsing the cookies.
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes window
+  max: 100,
+  message: {
+    error: "Too many requests from this IP address",
+    retryAfter: "15 minutes",
+    // documentation: "https://api.example.com/docs/rate-limits",
+  },
+  standardHeaders: true,
+
+  legacyHeaders: false,
+
+  handler: (req, res) => {
+    res.status(429).json({
+      error: "Rate limit exceeded",
+      message: "Too many requests, please try again later",
+      retryAfter: Math.round(req.rateLimit.resetTime / 1000),
+    });
+  },
+});
+
+app.use(limiter);
 
 // make sure to put these after the parser.
 const { apiRouter } = require("./index.js");

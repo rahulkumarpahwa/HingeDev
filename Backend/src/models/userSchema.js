@@ -225,6 +225,11 @@ const userSchema = new mongoose.Schema(
         default: true,
       },
 
+       showLinkedin: {
+        type: Boolean,
+        default: true,
+      },
+
       showPortfolio: {
         type: Boolean,
         default: true,
@@ -238,9 +243,9 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ location: "2dsphere" });
 
 // don't use the arrow methods.
-userSchema.methods.getJWT = async function () {
+userSchema.methods.getJWT = function () {
   const user = this; // as the every instace (newUser) is instace of User model so 'this' refers to that instance.
-  const token = await jwt.sign(
+  const token = jwt.sign(
     { _id: user._id, email: user.email },
     env.JWT_SECRET,
     {

@@ -81,13 +81,11 @@ const userPreferenceSchema = new mongoose.Schema(
       },
     },
 
-
     maxDistanceKm: {
       type: Number,
       default: 50,
       min: 1,
     },
-
 
     collaborationPreference: {
       type: [String],
@@ -107,5 +105,8 @@ const userPreferenceSchema = new mongoose.Schema(
   },
 );
 
-const UserPreference = mongoose.model("UserPreferences", userPreferenceSchema);
-module.exports = { UserPreference };
+const UserPreferenceModel = mongoose.model(
+  "UserPreferenceModel",
+  userPreferenceSchema,
+);
+module.exports = { UserPreferenceModel };
