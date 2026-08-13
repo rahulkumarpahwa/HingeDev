@@ -34,8 +34,7 @@ export const Auth = () => {
 
   const loginPostRequest = async () => {
     try {
-      turnstileRef.current?.reset();
-
+      
       const response = await axios.post(
         `${BASE_URL}/login`,
         { email, password, turnstileToken: token },
@@ -48,6 +47,7 @@ export const Auth = () => {
       );
       console.log(response.data.user);
       dispatchStore(addUser(response.data.user));
+      turnstileRef.current?.reset();
       return navigate("/feed"); // navigating to the home route.
     } catch (error) {
       error.response != null && setError(error.message + "!");
@@ -57,8 +57,7 @@ export const Auth = () => {
 
   const handleSignUp = async () => {
     try {
-      turnstileRef.current?.reset();
-
+      
       const response = await axios.post(
         BASE_URL + "/signup",
         { ...state, email, password },
@@ -71,6 +70,7 @@ export const Auth = () => {
       );
       console.log(response);
       dispatchStore(addUser(response.data.data));
+      turnstileRef.current?.reset();
       setTimeout(() => {
         toast.success(response.data.message + "!");
         return navigate("/feed");
