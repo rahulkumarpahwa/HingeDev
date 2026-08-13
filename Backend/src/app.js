@@ -66,12 +66,6 @@ app.use(limiter);
 // make sure to put these after the parser.
 const { apiRouter } = require("./index.js");
 
-// trust the proxy
-/**
- * One important thing: Nginx / Cloudflare. If your backend is behind Nginx, Cloudflare, a load balancer, etc., req.socket.remoteAddress may give you the proxy's IP instead of the actual user's IP. In that situation, you need to configure your proxy correctly and read the appropriate forwarded header.
- */
-app.set("trust proxy", true);
-
 // like the middlewares, we pass the routers
 app.use("/api/v1", apiRouter);
 

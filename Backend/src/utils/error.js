@@ -7,6 +7,7 @@ const responseError = (status, errorname, message) => {
 
 const errorConstants = {
   ValidationError: "ValidationError",
+  InternalServerError : "InternalServerError",
   InvalidCredentails: "InvalidCredentails",
   UnauthorizedError: "UnauthorizedError",
 };

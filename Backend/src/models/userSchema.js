@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const vad = validator;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { env } = require("../../envParser");
@@ -21,6 +22,13 @@ const userSchema = new mongoose.Schema(
       maxLength: 50,
       trim: true,
     },
+    displayName: {
+      type: String,
+      required: false,
+      minLength: 4,
+      maxLength: 50,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -28,7 +36,9 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       validate: {
-        validator: validator.isEmail,
+        validator: (val) => {
+          return vad.isEmail(val);
+        },
         message: "Invalid Email Address",
       },
     },
@@ -40,6 +50,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: 8,
+      maxLength: 80,
     },
 
     accountStatus: {
@@ -54,26 +65,32 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
+      required: true,
       enum: [
         "Woman",
         "Man",
         "Non-binary",
-        "Trans Woman",
-        "Trans Man",
+        "Trans-Woman",
+        "Trans-Man",
         "Genderqueer",
         "Agender",
         "Genderfluid",
-        "Prefer not to say",
+        "Prefer-not-to-say",
         "Other",
       ],
       validate(value) {
         if (
           ![
-            "male",
-            "female",
-            "non_binary",
-            "other",
-            "prefer_not_to_say",
+            "Woman",
+            "Man",
+            "Non-binary",
+            "Trans-Woman",
+            "Trans-Man",
+            "Genderqueer",
+            "Agender",
+            "Genderfluid",
+            "Prefer-not-to-say",
+            "Other",
           ].includes(value)
         ) {
           responseError(
@@ -89,7 +106,9 @@ const userSchema = new mongoose.Schema(
       default:
         "https://static.vecteezy.com/system/resources/previews/026/434/417/non_2x/default-avatar-profile-icon-of-social-media-user-photo-vector.jpg",
       validate: {
-        validator: validator.isURL,
+        validator: (val) => {
+          return vad.isURL(val);
+        },
         message: "Invalid photo URL",
       },
     },
@@ -119,18 +138,15 @@ const userSchema = new mongoose.Schema(
         "student",
         "other",
       ],
-      required: true,
     },
 
     experienceLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced", "expert"],
-      required: true,
     },
 
     skills: {
       type: [String],
-      required: true,
       validate: {
         validator: (value) => value.length <= 20,
         message: "Maximum 20 skills allowed",
@@ -146,12 +162,10 @@ const userSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"],
-        required: true,
       },
 
       coordinates: {
         type: [Number],
-        required: true,
 
         validate: {
           validator: (value) =>
@@ -176,25 +190,35 @@ const userSchema = new mongoose.Schema(
 
     github: {
       username: String,
-      profileUrl: String,
-      validate: {
-        validator: (value) => !value || validator.isURL(value),
-        message: "invalid GitHub url",
+      profileUrl: {
+        type: String,
+        validate: {
+          validator: (value) => {
+            return vad.isURL(value);
+          },
+          message: "Invalid GitHub URL",
+        },
       },
     },
 
     linkedin: {
-      profileUrl: String,
-      validate: {
-        validator: (value) => !value || validator.isURL(value),
-        message: "invalid Linkedin url",
+      profileUrl: {
+        type: String,
+        validate: {
+          validator: (value) => {
+            return vad.isURL(value);
+          },
+          message: "Invalid Linkedin URL",
+        },
       },
     },
 
     portfolioUrl: {
       type: String,
       validate: {
-        validator: (value) => !value || validator.isURL(value),
+        validator: (value) => {
+          return vad.isURL(value);
+        },
         message: "Invalid portfolio URL",
       },
     },
@@ -225,7 +249,7 @@ const userSchema = new mongoose.Schema(
         default: true,
       },
 
-       showLinkedin: {
+      showLinkedin: {
         type: Boolean,
         default: true,
       },
@@ -234,6 +258,10 @@ const userSchema = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
+    },
+    detailsCompleted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }, // adding the timestamps
@@ -245,13 +273,9 @@ userSchema.index({ location: "2dsphere" });
 // don't use the arrow methods.
 userSchema.methods.getJWT = function () {
   const user = this; // as the every instace (newUser) is instace of User model so 'this' refers to that instance.
-  const token = jwt.sign(
-    { _id: user._id, email: user.email },
-    env.JWT_SECRET,
-    {
-      expiresIn: 60 * 60 * 2,
-    },
-  );
+  const token = jwt.sign({ _id: user._id, email: user.email }, env.JWT_SECRET, {
+    expiresIn: 60 * 60 * 2,
+  });
   return token;
 };
 

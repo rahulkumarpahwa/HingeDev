@@ -2,46 +2,48 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const { User } = require("../models/userSchema.js");
 const validator = require("validator");
-const { validateSignUpData } = require("../utils/validation.js");
 const { userAuth } = require("../middlewares/auth.js");
 const ConnectionRequestModel = require("../models/connectionRequestSchema.js");
 const { getUserIP } = require("../middlewares/ipConfig.js");
 const { validateTurnstile } = require("../middlewares/turnstile.js");
+const { validateBody } = require("../middlewares/validate.js");
+const { userSchema } = require("../schemas/userSchema.js");
 
 const authRouter = express.Router();
 
-authRouter.post("/signup", getUserIP, validateTurnstile, async (req, res) => {
-  try {
-    validateSignUpData(req); // validating the data before saving.
-    const { firstName, lastName, email, password } = req.body;
-    // encrypting the data
-    const passwordHash = await bcrypt.hash(password, 10); // password and 10 salt rounds.
-    // returns a promise so use a await to handle that.
-    const newUser = new User({
-      firstName,
-      lastName,
-      email,
-      password: passwordHash,
-    });
-    await newUser.save();
-    const token = await newUser.getJWT();
-    res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
+authRouter.post(
+  "/signup",
+  getUserIP,
+  validateTurnstile,
+  validateBody(userSchema),
+  async (req, res) => {
+    try {
+      const {password} = req.body;
+      const passwordHash = await bcrypt.hash(password, 10);
+      const newUser = new User({
+        ...req.body,
+        password: passwordHash,
+      });
+      await newUser.save();
+      const token = await newUser.getJWT();
+      res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
 
-    // need to convert the findUser mongoose document to object to have the js methods over it.
-    const user = Object.keys(newUser.toObject()).reduce((acc, key) => {
-      if (key !== "password") acc[key] = newUser[key]; // acc means accumulator
-      return acc;
-    }, {});
-    res.json({
-      success: true,
-      status: 200,
-      message: "User Signup Successfully!",
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).send("error : " + error.message);
-  }
-});
+      // need to convert the findUser mongoose document to object to have the js methods over it.
+      const user = Object.keys(newUser.toObject()).reduce((acc, key) => {
+        if (key !== "password") acc[key] = newUser[key]; // acc means accumulator
+        return acc;
+      }, {});
+      res.json({
+        success: true,
+        status: 200,
+        message: "User Signup Successfully!",
+        data: user,
+      });
+    } catch (error) {
+      res.status(400).send("error : " + error.message);
+    }
+  },
+);
 
 authRouter.post("/login", getUserIP, validateTurnstile, async (req, res) => {
   try {
