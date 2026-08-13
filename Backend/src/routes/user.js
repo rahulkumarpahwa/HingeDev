@@ -1,7 +1,8 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth.js");
 const { User } = require("../models/userSchema.js");
-const ConnectionRequestModel = require("../models/connectionRequest.js");
+const ConnectionRequestModel = require("../models/connectionRequestSchema.js");
+const { calculateMatchScore } = require("../utils/matching.js");
 const userRouter = express.Router();
 
 /* /feed?page=1&limit=10 => 1-10 => .skip(0) & .limit(10)
@@ -20,26 +21,21 @@ userRouter.get("/feed", userAuth, async (req, res) => {
   // 1. his connections.
   // 2. ignored people.
   // 3. already sent the connection request.
+  // THEN: Rank by match score
 
   try {
     const page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
 
     // sanitise the limit:
-    limit = limit > 50 ? 50 : limit; // when limit greater than 50 we will fix that to 50.
+    limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
 
     const loggedInUser = req.user;
+
     // find all connection requests (sent + recieved)
     const connectionRequests = await ConnectionRequestModel.find({
-      $or: [
-        {
-          toUserId: loggedInUser._id,
-        },
-        {
-          fromUserId: loggedInUser._id,
-        },
-      ],
+      $or: [{ toUserId: loggedInUser._id }, { fromUserId: loggedInUser._id }],
     }).select("fromUserId toUserId");
 
     // creating a set to have the users which must be hidden based upon the conditions above.
@@ -49,24 +45,57 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       hiddenUsersFromFeed.add(req.toUserId.toString());
     });
 
-    // $nin : not in
-    // $ne : not equal to
-
-    const data = await User.find({
+    // Fetch ALL candidates (we'll rank and paginate after)
+    const candidates = await User.find({
       $and: [
         { _id: { $nin: Array.from(hiddenUsersFromFeed) } },
-        // converting to Array from the set.
         { _id: { $ne: loggedInUser._id } },
       ],
-    })
-      .select("-password -email -createdAt -updatedAt")
-      .skip(skip) // default value of skip is 0.
-      .limit(limit); // removing the password and email from the feed.
-      // adding the skip and the limit.
-      // skip : no of objects to be skipped.
-      // limit : to limit the no. of object.
+    }).select("-password -email -createdAt -updatedAt");
 
-    res.json({ success: true, status: 200, length: data.length, data: data });
+    // ============ RANKING LOGIC ============
+    // Score each candidate and sort by match score
+    const rankedCandidates = candidates
+      .map((candidate) => ({
+        user: candidate,
+        matchScore: calculateMatchScore(
+          {
+            skills: loggedInUser.skills || [],
+            bioEmbedding: loggedInUser.bioEmbedding,
+            experienceLevel: loggedInUser.experienceLevel,
+            location: {
+              city: loggedInUser.city,
+              country: loggedInUser.country,
+            },
+          },
+          {
+            skills: candidate.skills || [],
+            bioEmbedding: candidate.bioEmbedding,
+            experienceLevel: candidate.experienceLevel,
+            location: { city: candidate.city, country: candidate.country },
+          },
+        ),
+      }))
+      .sort((a, b) => b.matchScore - a.matchScore) // Sort descending by score
+      .slice(skip, skip + limit); // Apply pagination after ranking
+
+    // Format response
+    const data = rankedCandidates.map(({ user, matchScore }) => ({
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      photoUrl: user.photoUrl,
+      age: user.age,
+      gender: user.gender,
+      about: user.about,
+      skills: user.skills,
+      experienceLevel: user.experienceLevel,
+      city: user.city,
+      country: user.country,
+      matchScore: matchScore, // Include match score
+    }));
+
+    res.json({ success: true, length: data.length, data: data });
   } catch (error) {
     res.status(400).json({ success: false, status: 400, error: error.message });
   }
@@ -81,7 +110,7 @@ userRouter.get("/connections", userAuth, async (req, res) => {
       status: "accepted",
     }).populate(
       "fromUserId toUserId",
-      "firstName lastName photoUrl age gender about skills"
+      "firstName lastName photoUrl age gender about skills",
     ); // populate is only possible after we have make the 'ref' reference in the connectionRequestSchema.;
 
     const data = allConnections.map((row) => {

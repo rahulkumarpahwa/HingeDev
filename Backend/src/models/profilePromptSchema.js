@@ -41,4 +41,4 @@ const ProfilePromptModel = mongoose.model(
   profilePromptSchema,
 );
 
-module.exports = { ProfilePromptModel };
+module.exports = ProfilePromptModel;

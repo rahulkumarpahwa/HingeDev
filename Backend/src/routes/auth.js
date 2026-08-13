@@ -1,13 +1,13 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { User } = require("../models/userSchema.js");
-const validator = require("validator");
 const { userAuth } = require("../middlewares/auth.js");
 const ConnectionRequestModel = require("../models/connectionRequestSchema.js");
 const { getUserIP } = require("../middlewares/ipConfig.js");
 const { validateTurnstile } = require("../middlewares/turnstile.js");
 const { validateBody } = require("../middlewares/validate.js");
 const { userSchema, loginSchema } = require("../schemas/userSchema.js");
+const { responseError, errorConstants } = require("../utils/error.js");
 
 const authRouter = express.Router();
 
@@ -28,10 +28,10 @@ authRouter.post(
       const token = await newUser.getJWT();
       res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
       const user = { ...newUser.toObject(), password: undefined };
-      res.json({
+      res.status(201).json({
         success: true,
-        status: 200,
-        message: "User Signup Successfully!",
+        status: 201,
+        message: "User Signup Successfully.",
         data: user,
       });
     } catch (error) {
@@ -51,7 +51,7 @@ authRouter.post(
 
       const findUser = await User.findOne({ email: email });
       if (!findUser) {
-        throw new Error("Invalid Credentials!");
+        responseError(400, errorConstants.InvalidCredentails, "User not found");
       }
       const isValidPassword = await findUser.getPasswordValid(password);
       if (isValidPassword) {
@@ -60,14 +60,18 @@ authRouter.post(
 
         const user = { ...findUser.toObject(), password: undefined };
 
-        res.json({
+        res.status(201).json({
           success: true,
-          status: 200,
-          message: "Login Successfully!",
+          status: 201,
+          message: "Login Successfully.",
           user,
         });
       } else {
-        throw new Error("Invalid Credentials!");
+        responseError(
+          400,
+          errorConstants.InvalidCredentails,
+          "Invalid Password",
+        );
       }
     } catch (error) {
       res.status(400).send(error.message);
@@ -75,11 +79,15 @@ authRouter.post(
   },
 );
 
-authRouter.post("/logout", (req, res) => {
+authRouter.post("/logout", userAuth, (req, res) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
   });
-  res.status(200).send("User Logged Out, Successfully!");
+  res.status(201).json({
+    success: true,
+    status: 201,
+    message: "User LoggedOut Successfully.",
+  });
 });
 
 authRouter.delete("/delete", userAuth, async (req, res) => {
@@ -101,12 +109,11 @@ authRouter.delete("/delete", userAuth, async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(userId);
     res.cookie("token", null, {
       expires: new Date(Date.now()),
-    }); // deleting the cookies as well.
-    // console.log("User deleted successfully!" + deletedUser);
-    res.send({
+    });
+    res.json({
       success: true,
       status: 200,
-      message: "User deleted Successfully!",
+      message: "User deleted Successfully.",
     });
   } catch (error) {
     res.status(400).send(error.message);

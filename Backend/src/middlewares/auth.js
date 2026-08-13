@@ -1,38 +1,26 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/userSchema");
-const { env } = require("../../envParser.js"); // any random secret for the jwt. can put as env as well.
-
-// const adminAuth = (req, res, next) => {
-//   const token = getToken();
-//   const authorized = () => {
-//     return token === "aaa";
-//   };
-//   if (authorized()) {
-//     console.log("Authorized!");
-//     next();
-//   } else {
-//     res.status(401).send("Unauthorized admin");
-//   }
-// };
+const { env } = require("../../envParser.js");
+const { responseError, errorConstants } = require("../utils/error.js");
 
 const userAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
     if (!token) {
-      // throw new Error("Invalid Token!");
-      // to make properly handled we will make this response.
-      return res.status(401).json("Please Login!");
+      return res
+        .status(401)
+        .json({ status: 401, success: false, message: "Bad Request, Please Login." });
     }
 
     const decodedToken = await jwt.verify(token, env.JWT_SECRET);
     const { _id, email } = decodedToken;
     const findUser = await User.findOne({ _id: _id, email: email });
     if (!findUser) {
-      throw new Error("Invalid User! Does not Exists!");
+      responseError(400, errorConstants.InvalidCredentails, "User not found");
     }
 
     req.user = findUser; // attaching the user in the request as we are already finding the user in the database and each request no need to find the user again in the request explicitly.
-    next(); // to call the next method /handler
+    next();
   } catch (error) {
     res.status(400).send(" error " + error.message);
   }

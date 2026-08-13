@@ -1,72 +1,69 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const { userAuth } = require("../middlewares/auth.js");
 const validator = require("validator");
+const { userAuth } = require("../middlewares/auth.js");
 const { User } = require("../models/userSchema.js");
-const { validateProfileEditData } = require("../utils/validation.js");
-
+const { generateBioEmbedding } = require("../utils/matching.js");
+const { responseError, errorConstants } = require("../utils/error.js");
+const { validateBody } = require("../middlewares/validate.js");
+const { updateSchema } = require("../schemas/userSchema.js");
 const profileRouter = express.Router();
 
-profileRouter.get("/view", userAuth, async (req, res) => {
+profileRouter.get("/restore", userAuth, async (req, res) => {
   try {
-    res.send(req.user); // sending back the user details after verifying with the userAuth.
-  } catch (error) {
-    console.log(error);
-    res.status(400).send(error.message);
-  }
-});
-
-profileRouter.patch("/edit", userAuth, async (req, res) => {
-  try {
-    // data sanitation
-    if (!validateProfileEditData(req.body)) {
-      throw new Error("Invalid! Edit Not Allowed!");
-    }
-
-    // other validations:
-    const { firstName, lastName, gender, photoUrl, skills } = req.body;
-
-    if (!firstName || !lastName) {
-      throw new Error("FirstName and LastName must Exist!");
-    }
-
-    if (skills != null && skills.length > 10) {
-      throw new Error("Skills should be less than 10! Update Not Allowed!");
-    }
-
-    if (photoUrl != "" && !validator.isURL(photoUrl)) {
-      throw new Error("Photo URL must be a link!");
-    }
-
-    const ALLOWED_GENDER_VALUES = ["male", "female", "others"];
-    const isGenderAllowed = ALLOWED_GENDER_VALUES.includes(gender);
-    if (!isGenderAllowed) {
-      throw new Error("Gender Must be Valid!");
-    }
-
-    const loggedInUser = req.user; // attached by the auth user.
-    // console.log(req.body);
-    const updatedUser = await User.findByIdAndUpdate(
-      loggedInUser._id, // Id to identify the user.
-      req.body, // data to be updated
-      { new: true, runValidators: true } // options objects
-    );
-    res.json({
-      success: true,
+    res.status(200).json({
       status: 200,
-      message: `${loggedInUser.firstName}, your profile has been updated!`,
-      newEdittedUser: updatedUser, // sending the new updated Data of the whole user.
+      success: true,
+      message: "Restore User successfully.",
+      user: req.user,
     });
   } catch (error) {
-    res.status(400).send(error.message);
+    responseError(400, errorConstants.InternalServerError, error.message);
   }
 });
+
+profileRouter.patch(
+  "/edit",
+  userAuth,
+  validateBody(updateSchema),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const loggedInUser = req.user;
+
+      if (id && id !== loggedInUser._id) {
+        responseError(400, errorConstants.UnauthorizedError, "Bad Request.");
+      }
+
+      // // ============ EMBEDDING GENERATION ============
+      // // If bio (about) is being updated, generate embedding
+      // if (about) {
+      //   const bioEmbedding = generateBioEmbedding(about);
+      //   req.body.bioEmbedding = bioEmbedding;
+      // }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        loggedInUser._id,
+        req.body,
+        { new: true, runValidators: true },
+      );
+      res.status(201).json({
+        success: true,
+        status: 201,
+        message: "user profile has been updated.",
+        updatedUser,
+      });
+    } catch (e) {
+      responseError(400, errorConstants.InternalServerError, e.message);
+    }
+  },
+);
 
 profileRouter.patch("/password", userAuth, async (req, res) => {
   try {
     const ALLOWED_EDIT_FIELDS = ["newPassword", "reNewPassword"];
     const isEditAllowed = Object.keys(req.body).every(
-      (key) => ALLOWED_EDIT_FIELDS.includes(key) // key represent the each key.
+      (key) => ALLOWED_EDIT_FIELDS.includes(key), // key represent the each key.
     );
     if (!isEditAllowed) {
       throw new Error("Update not Allowed!");
