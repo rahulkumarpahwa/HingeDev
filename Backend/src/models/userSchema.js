@@ -185,7 +185,7 @@ const userSchema = new mongoose.Schema(
     country: String,
     timezone: {
       type: String,
-      default: "UTC",
+      default: "IST",
     },
 
     github: {

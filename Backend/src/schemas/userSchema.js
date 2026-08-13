@@ -28,4 +28,12 @@ const userSchema = joi.object({
     .required(),
 });
 
-module.exports = { userSchema };
+const loginSchema = joi.object({
+  email: userSchema.extract("email"),
+  password: userSchema.extract("password"),
+});
+
+module.exports = {
+  userSchema,
+  loginSchema,
+};

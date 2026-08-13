@@ -7,7 +7,7 @@ const ConnectionRequestModel = require("../models/connectionRequestSchema.js");
 const { getUserIP } = require("../middlewares/ipConfig.js");
 const { validateTurnstile } = require("../middlewares/turnstile.js");
 const { validateBody } = require("../middlewares/validate.js");
-const { userSchema } = require("../schemas/userSchema.js");
+const { userSchema, loginSchema } = require("../schemas/userSchema.js");
 
 const authRouter = express.Router();
 
@@ -18,7 +18,7 @@ authRouter.post(
   validateBody(userSchema),
   async (req, res) => {
     try {
-      const {password} = req.body;
+      const { password } = req.body;
       const passwordHash = await bcrypt.hash(password, 10);
       const newUser = new User({
         ...req.body,
@@ -27,12 +27,7 @@ authRouter.post(
       await newUser.save();
       const token = await newUser.getJWT();
       res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
-
-      // need to convert the findUser mongoose document to object to have the js methods over it.
-      const user = Object.keys(newUser.toObject()).reduce((acc, key) => {
-        if (key !== "password") acc[key] = newUser[key]; // acc means accumulator
-        return acc;
-      }, {});
+      const user = { ...newUser.toObject(), password: undefined };
       res.json({
         success: true,
         status: 200,
@@ -45,43 +40,40 @@ authRouter.post(
   },
 );
 
-authRouter.post("/login", getUserIP, validateTurnstile, async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    // validating the email:
-    if (!validator.isEmail(email)) {
-      throw new Error("Enter a valid credentials!");
-    }
-    // checking if userExist or not.
-    const findUser = await User.findOne({ email: email });
-    if (!findUser) {
-      throw new Error("Invalid Credentials!");
-    }
+authRouter.post(
+  "/login",
+  getUserIP,
+  validateTurnstile,
+  validateBody(loginSchema),
+  async (req, res) => {
+    try {
+      const { email, password } = req.body;
 
-    const isValidPassword = await findUser.getPasswordValid(password);
-    if (isValidPassword) {
-      const token = await findUser.getJWT();
-      res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
+      const findUser = await User.findOne({ email: email });
+      if (!findUser) {
+        throw new Error("Invalid Credentials!");
+      }
+      const isValidPassword = await findUser.getPasswordValid(password);
+      if (isValidPassword) {
+        const token = await findUser.getJWT();
+        res.cookie("token", token, { expires: new Date(Date.now() + 3600000) });
 
-      // need to convert the findUser mongoose document to object to have the js methods over it.
-      const user = Object.keys(findUser.toObject()).reduce((acc, key) => {
-        if (key !== "password") acc[key] = findUser[key]; // acc means accumulator
-        return acc;
-      }, {});
+        const user = { ...findUser.toObject(), password: undefined };
 
-      res.json({
-        success: true,
-        status: 200,
-        message: "Login Successfully!",
-        user,
-      });
-    } else {
-      throw new Error("Invalid Credentials!");
+        res.json({
+          success: true,
+          status: 200,
+          message: "Login Successfully!",
+          user,
+        });
+      } else {
+        throw new Error("Invalid Credentials!");
+      }
+    } catch (error) {
+      res.status(400).send(error.message);
     }
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+  },
+);
 
 authRouter.post("/logout", (req, res) => {
   res.cookie("token", null, {
