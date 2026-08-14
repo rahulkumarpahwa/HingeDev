@@ -4,7 +4,7 @@ import { addUser } from "./userSlice";
 
 export const fetchUser = async (dispatch) => {
   // only core logic : try and catch will handled in the places where it is called.
-  const response = await axios.get(BASE_URL + "/profile/view", {
+  const response = await axios.get(BASE_URL + "/profile/restore", {
     withCredentials: true,
   });
   console.log(response.data);

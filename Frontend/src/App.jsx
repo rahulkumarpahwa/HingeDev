@@ -2,7 +2,6 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Auth } from "./pages/Auth.jsx";
 import { Body } from "./pages/Body.jsx";
-import Feed from "./pages/Feed.jsx";
 
 import { Provider } from "react-redux";
 import appStore from "./utils/appStore.js";
@@ -13,6 +12,7 @@ import { Home } from "./pages/Home.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
 import Connections from "./pages/Connections.jsx";
 import Requests from "./pages/Requests.jsx";
+import SwipeCards from "./pages/Swipe.jsx";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
                 path="/feed"
                 element={
                   <ProtectedRoute>
-                    <Feed />
+                    <SwipeCards/>
                   </ProtectedRoute>
                 }
               />

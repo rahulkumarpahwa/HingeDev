@@ -7,8 +7,17 @@ import toast, { Toaster } from "react-hot-toast";
 import { FaTransgender } from "react-icons/fa6";
 
 export const Card = ({ user }) => {
-  const { _id, firstName, lastName, skills, photoUrl, about, age, gender } =
-    user;
+  const {
+    _id,
+    displayName,
+    firstName,
+    lastName,
+    skills,
+    photoUrl,
+    bio,
+    dateOfBirth,
+    gender,
+  } = user;
   const dispatch = useDispatch();
 
   const handleRequestSend = async (status, _toWhomWeAreInterested) => {
@@ -16,7 +25,7 @@ export const Card = ({ user }) => {
       const response = await axios.post(
         BASE_URL + "/request/send/" + status + "/" + _toWhomWeAreInterested,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response);
       if (response && status == "interested") {
@@ -36,8 +45,8 @@ export const Card = ({ user }) => {
         typeof errData === "string"
           ? errData
           : errData && typeof errData === "object"
-          ? errData.error || errData.message || JSON.stringify(errData)
-          : error?.message || "An error occurred";
+            ? errData.error || errData.message || JSON.stringify(errData)
+            : error?.message || "An error occurred";
       toast.error(msg);
     }
   };
@@ -54,21 +63,15 @@ export const Card = ({ user }) => {
       <div className="flex flex-col relative z-10 w-full mt-auto text-white p-4">
         <div className="flex flex-row gap-2 text-lg md:text-xl italic">
           <span>
+            {displayName}
             {firstName} {_id == undefined && lastName}
           </span>
           <div className=" text-white not-italic flex items-center justify-center gap-1 ">
-            {age}{" "}
-            {gender == "male" ? (
-              "♂️"
-            ) : gender == "female" ? (
-              "♀️"
-            ) : (
-              <FaTransgender color="pink" size={17} />
-            )}
+            {dateOfBirth} {gender}
           </div>
         </div>
         <p className="md:text-base text-justify truncate hover:overflow-visible hover:text-wrap ">
-          {about}
+          {bio}
         </p>
         <div className="flex gap-2 items-center py-2 overflow-x-auto overflow-y-hidden px-1 no-scrollbar">
           {skills &&

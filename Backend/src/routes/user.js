@@ -3,6 +3,7 @@ const { userAuth } = require("../middlewares/auth.js");
 const { User } = require("../models/userSchema.js");
 const ConnectionRequestModel = require("../models/connectionRequestSchema.js");
 const { calculateMatchScore } = require("../utils/matching.js");
+const { responseError, errorConstants } = require("../utils/error.js");
 const userRouter = express.Router();
 
 /* /feed?page=1&limit=10 => 1-10 => .skip(0) & .limit(10)
@@ -24,80 +25,90 @@ userRouter.get("/feed", userAuth, async (req, res) => {
   // THEN: Rank by match score
 
   try {
-    const page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || 10;
+    // const page = parseInt(req.query.page) || 1;
+    // let limit = parseInt(req.query.limit) || 10;
 
-    // sanitise the limit:
-    limit = limit > 50 ? 50 : limit;
-    const skip = (page - 1) * limit;
+    // // sanitise the limit:
+    // limit = limit > 50 ? 50 : limit;
+    // const skip = (page - 1) * limit;
 
-    const loggedInUser = req.user;
+    // const loggedInUser = req.user;
 
-    // find all connection requests (sent + recieved)
-    const connectionRequests = await ConnectionRequestModel.find({
-      $or: [{ toUserId: loggedInUser._id }, { fromUserId: loggedInUser._id }],
-    }).select("fromUserId toUserId");
+    // // find all connection requests (sent + recieved)
+    // const connectionRequests = await ConnectionRequestModel.find({
+    //   $or: [{ toUserId: loggedInUser._id }, { fromUserId: loggedInUser._id }],
+    // }).select("fromUserId toUserId");
 
-    // creating a set to have the users which must be hidden based upon the conditions above.
-    const hiddenUsersFromFeed = new Set();
-    connectionRequests.forEach((req) => {
-      hiddenUsersFromFeed.add(req.fromUserId.toString());
-      hiddenUsersFromFeed.add(req.toUserId.toString());
+    // // creating a set to have the users which must be hidden based upon the conditions above.
+    // const hiddenUsersFromFeed = new Set();
+    // connectionRequests.forEach((req) => {
+    //   hiddenUsersFromFeed.add(req.fromUserId.toString());
+    //   hiddenUsersFromFeed.add(req.toUserId.toString());
+    // });
+
+    // // Fetch ALL candidates (we'll rank and paginate after)
+    // const candidates = await User.find({
+    //   $and: [
+    //     { _id: { $nin: Array.from(hiddenUsersFromFeed) } },
+    //     { _id: { $ne: loggedInUser._id } },
+    //   ],
+    // }).select("-password -email -createdAt -updatedAt");
+
+    // // ============ RANKING LOGIC ============
+    // // Score each candidate and sort by match score
+    // const rankedCandidates = candidates
+    //   .map((candidate) => ({
+    //     user: candidate,
+    //     matchScore: calculateMatchScore(
+    //       {
+    //         skills: loggedInUser.skills || [],
+    //         bioEmbedding: loggedInUser.bioEmbedding,
+    //         experienceLevel: loggedInUser.experienceLevel,
+    //         location: {
+    //           city: loggedInUser.city,
+    //           country: loggedInUser.country,
+    //         },
+    //       },
+    //       {
+    //         skills: candidate.skills || [],
+    //         bioEmbedding: candidate.bioEmbedding,
+    //         experienceLevel: candidate.experienceLevel,
+    //         location: { city: candidate.city, country: candidate.country },
+    //       },
+    //     ),
+    //   }))
+    //   .sort((a, b) => b.matchScore - a.matchScore) // Sort descending by score
+    //   .slice(skip, skip + limit); // Apply pagination after ranking
+
+    // // Format response
+    // const data = rankedCandidates.map(({ user, matchScore }) => ({
+    //   _id: user._id,
+    //   firstName: user.firstName,
+    //   lastName: user.lastName,
+    //   photoUrl: user.photoUrl,
+    //   age: user.age,
+    //   gender: user.gender,
+    //   about: user.about,
+    //   skills: user.skills,
+    //   experienceLevel: user.experienceLevel,
+    //   city: user.city,
+    //   country: user.country,
+    //   matchScore: matchScore, // Include match score
+    // }));
+
+    // temporary send all the data with all the details:
+    const users = await User.find({ _id: { $ne: req.user._id } }).select(
+      "-password -detailsCompleted",
+    );
+
+    res.status(200).json({
+      status: res.statusCode,
+      success: true,
+      length: users.length,
+      feed: users,
     });
-
-    // Fetch ALL candidates (we'll rank and paginate after)
-    const candidates = await User.find({
-      $and: [
-        { _id: { $nin: Array.from(hiddenUsersFromFeed) } },
-        { _id: { $ne: loggedInUser._id } },
-      ],
-    }).select("-password -email -createdAt -updatedAt");
-
-    // ============ RANKING LOGIC ============
-    // Score each candidate and sort by match score
-    const rankedCandidates = candidates
-      .map((candidate) => ({
-        user: candidate,
-        matchScore: calculateMatchScore(
-          {
-            skills: loggedInUser.skills || [],
-            bioEmbedding: loggedInUser.bioEmbedding,
-            experienceLevel: loggedInUser.experienceLevel,
-            location: {
-              city: loggedInUser.city,
-              country: loggedInUser.country,
-            },
-          },
-          {
-            skills: candidate.skills || [],
-            bioEmbedding: candidate.bioEmbedding,
-            experienceLevel: candidate.experienceLevel,
-            location: { city: candidate.city, country: candidate.country },
-          },
-        ),
-      }))
-      .sort((a, b) => b.matchScore - a.matchScore) // Sort descending by score
-      .slice(skip, skip + limit); // Apply pagination after ranking
-
-    // Format response
-    const data = rankedCandidates.map(({ user, matchScore }) => ({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      photoUrl: user.photoUrl,
-      age: user.age,
-      gender: user.gender,
-      about: user.about,
-      skills: user.skills,
-      experienceLevel: user.experienceLevel,
-      city: user.city,
-      country: user.country,
-      matchScore: matchScore, // Include match score
-    }));
-
-    res.json({ success: true, length: data.length, data: data });
   } catch (error) {
-    res.status(400).json({ success: false, status: 400, error: error.message });
+    responseError(400, errorConstants.InternalServerError, error.message);
   }
 });
 
