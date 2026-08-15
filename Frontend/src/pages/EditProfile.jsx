@@ -5,7 +5,7 @@ import { addUser } from "../utils/userSlice.js";
 import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants.js";
-import { Card } from "../components/Card.jsx";
+import Card from "../components/Card.jsx";
 import { DiasyToast } from "../components/DiasyToast.jsx";
 
 //https://medium.com/@sriweb/replace-multiple-usestate-hooks-with-usereducer-f70b0a058343
@@ -87,7 +87,9 @@ export const EditProfile = () => {
 
   return (
     <div className="flex items-center justify-center flex-col gap-7 py-10 px-4">
-      <h1 className="font-bold  sm:text-4xl text-2xl">Update Profile Details</h1>
+      <h1 className="font-bold  sm:text-4xl text-2xl">
+        Update Profile Details
+      </h1>
       <div className="flex flex-col md:flex-row items-center justify-center gap-5 w-full">
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
@@ -119,7 +121,7 @@ export const EditProfile = () => {
                 className="input"
                 onChange={(e) =>
                   updateGender(
-                    e.target.value == "" ? state.gender : e.target.value
+                    e.target.value == "" ? state.gender : e.target.value,
                   )
                 }
               >
@@ -160,7 +162,7 @@ export const EditProfile = () => {
                 value={state.photoUrl != "/dummy.jpg" ? state.photoUrl : ""}
                 onChange={(e) => {
                   changePhotoUrl(
-                    e.target.value == "" ? "/dummy.jpg" : e.target.value
+                    e.target.value == "" ? "/dummy.jpg" : e.target.value,
                   );
                 }}
               />

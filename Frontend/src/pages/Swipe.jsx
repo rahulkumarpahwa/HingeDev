@@ -11,6 +11,8 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { addFeed } from "../utils/feedSlice";
 
+import Card from "../components/Card.jsx";
+
 const SwipeCards = ({ onSwipeRight, onSwipeLeft }) => {
   const dispatch = useDispatch();
   const feed = useSelector((store) => store.feed);
@@ -18,7 +20,6 @@ const SwipeCards = ({ onSwipeRight, onSwipeLeft }) => {
   const [cards, setCards] = useState(feed || []);
 
   const getFeedData = async () => {
-    // If feed already exists in Redux, use it.
     if (feed && feed.length > 0) {
       setCards(feed);
       return;
@@ -49,7 +50,6 @@ const SwipeCards = ({ onSwipeRight, onSwipeLeft }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keep local cards in sync when Redux feed changes
   useEffect(() => {
     if (feed) {
       setCards(feed);
@@ -76,13 +76,13 @@ const SwipeCards = ({ onSwipeRight, onSwipeLeft }) => {
 
       <div className="grid h-[500px] w-full place-items-center bg-neutral-100">
         {cards.map((card) => (
-          <Card
+          <SwipeableCard
             key={card._id}
+            user={card}
             cards={cards}
             setCards={setCards}
             onSwipeRight={onSwipeRight}
             onSwipeLeft={onSwipeLeft}
-            {...card}
           />
         ))}
       </div>
@@ -90,23 +90,28 @@ const SwipeCards = ({ onSwipeRight, onSwipeLeft }) => {
   );
 };
 
-const Card = ({
-  _id,
-  photoUrl,
+const SwipeableCard = ({
+  user,
   setCards,
   cards,
   onSwipeRight,
   onSwipeLeft,
 }) => {
+  const { _id } = user;
+
   const x = useMotionValue(0);
   const dragControls = useDragControls();
+
   const [swipeDirection, setSwipeDirection] = useState(null);
 
   const cardIndex = cards.findIndex((card) => card._id === _id);
 
   const isFront = cardIndex === cards.length - 1;
+
   const rotateRaw = useTransform(x, [-150, 150], [-18, 18]);
+
   const opacity = useTransform(x, [-300, 0, 300], [0, 1, 0]);
+
   const rotate = useTransform(() => {
     if (isFront) {
       return `${rotateRaw.get()}deg`;
@@ -136,8 +141,10 @@ const Card = ({
 
     const direction = swipeDirection;
 
+    // Remove the card locally
     setCards((prevCards) => prevCards.filter((card) => card._id !== _id));
 
+    // Tell parent what happened
     if (direction === "right") {
       onSwipeRight?.(_id);
     } else {
@@ -162,6 +169,24 @@ const Card = ({
         ? "-100vw"
         : 0;
 
+  /*
+   * Button click from Card.jsx.
+   *
+   * We directly trigger the same swipe animation
+   * instead of immediately removing the card.
+   */
+  const handleButtonSwipeRight = () => {
+    if (!isFront || swipeDirection) return;
+
+    setSwipeDirection("right");
+  };
+
+  const handleButtonSwipeLeft = () => {
+    if (!isFront || swipeDirection) return;
+
+    setSwipeDirection("left");
+  };
+
   return (
     <motion.div
       draggable={false}
@@ -173,26 +198,21 @@ const Card = ({
         touch-none
         select-none
         rounded-lg
-        bg-white
-        bg-cover
-        bg-center
         hover:cursor-grab
         active:cursor-grabbing
       "
       style={{
-        backgroundImage: `url(${photoUrl})`,
         gridRow: 1,
         gridColumn: 1,
         zIndex: cardIndex + 1,
+
         pointerEvents: isFront && !swipeDirection ? "auto" : "none",
+
         x,
         opacity,
         rotate,
-        boxShadow: isFront
-          ? // ? "0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)"
-            "0 3px 10px rgb(0,0,0,0.2)"
-          : // box-shadow: ;
-            undefined,
+
+        boxShadow: isFront ? "0 3px 10px rgb(0,0,0,0.2)" : undefined,
       }}
       animate={{
         scale: isFront ? 1 : 0.98,
@@ -214,62 +234,15 @@ const Card = ({
       dragSnapToOrigin
       onDragEnd={handleDragEnd}
       onAnimationComplete={handleSwipeAnimationComplete}
-    />
+    >
+      <Card
+        user={user}
+        isFront={isFront}
+        onSwipeRight={handleButtonSwipeRight}
+        onSwipeLeft={handleButtonSwipeLeft}
+      />
+    </motion.div>
   );
 };
 
 export default SwipeCards;
-
-/**
-
-### Usage
-
-jsx
-<SwipeCards
-  onSwipeRight={(cardId) => {
-    console.log("Card completely left screen → RIGHT", cardId);
-
-    // Example:
-    // likeCard(cardId);
-  }}
-  onSwipeLeft={(cardId) => {
-    console.log("Card completely left screen → LEFT", cardId);
-
-    // Example:
-    // rejectCard(cardId);
-  }}
-/>
-
-
-
-The important flow
-
-The card now behaves like:
-
-```text
-User drags
-     ↓
-Card follows finger
-     ↓
-User releases
-     ↓
-Did they cross 100px?
-     │
-   No ──────→ Card snaps back
-     │
-    Yes
-     ↓
-Determine LEFT / RIGHT
-     ↓
-Animate to -100vw / +100vw
-     ↓
-Card is completely off-screen
-     ↓
-onAnimationComplete()
-     ↓
-Remove card
-     ↓
-onSwipeLeft() / onSwipeRight()
-
-One subtle improvement here is that **the callback is not fired merely because the user crossed the threshold**. It fires only after the throw animation completes, so if you're using the callback to make an API request, update a database, or move to the next item, it happens at the point you wanted.
-***/
