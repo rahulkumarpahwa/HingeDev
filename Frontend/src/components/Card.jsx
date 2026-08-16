@@ -1,12 +1,8 @@
 import React from "react";
 import { FaHeart, FaTimes } from "react-icons/fa";
+import { format } from "date-fns";
 
-const Card = ({
-  user,
-  onSwipeRight,
-  onSwipeLeft,
-  isFront = false,
-}) => {
+const Card = ({ user, onSwipeRight, onSwipeLeft, isFront = false }) => {
   if (!user) return null;
 
   const {
@@ -64,15 +60,15 @@ const Card = ({
 
       <div className="flex flex-col relative z-10 w-full mt-auto text-white p-4">
         {/* Name + age/gender */}
-        <div className="flex flex-row gap-2 text-lg md:text-xl italic items-center">
+        <div className="flex gap-2 text-lg md:text-xl italic items-center">
           <span className="font-semibold">
-            {displayName ||
-              `${firstName || ""} ${lastName || ""}`.trim()}
+            {firstName} {lastName[0]}.
           </span>
 
           <div className="text-white not-italic flex items-center justify-center gap-1">
-            {dateOfBirth && <span>{dateOfBirth}</span>}
-            {gender && <span>{gender}</span>}
+            {dateOfBirth && (
+              <span>{format(new Date(dateOfBirth), "dd MMM, yyyy")}</span>
+            )}
           </div>
         </div>
 
